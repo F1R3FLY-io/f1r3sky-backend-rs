@@ -1,0 +1,25 @@
+[package]
+edition = "2024"
+name    = "firefly-events-sync"
+publish = false
+version = "0.1.0"
+
+[dependencies]
+anyhow            = { version = "1.0" }
+async-stream      = { version = "0.3" }
+base64            = { version = "0.22" }
+bitcode           = { version = "0.6", features = ["serde"] }
+clap              = { version = "4.5", features = ["derive"] }
+firefly-api       = { path = "../firefly-api" }
+futures           = { version = "0.3" }
+hex               = { version = "0.4" }
+scopeguard        = { version = "1.2" }
+secp256k1         = { version = "0.30" }
+serde             = { version = "1.0", features = ["derive"] }
+serde_json        = { version = "1.0" }
+tokio             = { version = "1.43", features = ["macros", "rt-multi-thread", "signal", "sync"] }
+tokio-stream      = { version = "0.1" }
+tokio-tungstenite = { version = "0.26" }
+tonic             = { version = "0.12" }
+uuid              = { version = "1.15" }
+warp              = { version = "0.3" }

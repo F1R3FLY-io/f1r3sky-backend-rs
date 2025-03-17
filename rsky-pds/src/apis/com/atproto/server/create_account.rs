@@ -340,10 +340,7 @@ async fn format_did_and_plc_op(
     let create_op_input = CreateAtprotoOpInput {
         signing_key: encode_did_key(&signing_key.public_key()),
         handle: input.handle,
-        pds: format!(
-            "http://127.0.0.1:2583",
-            // env::var("PDS_HOSTNAME").unwrap_or("localhost".to_owned())
-        ),
+        pds: format!("http://127.0.0.1:{}", env::var("PDS_PORT").unwrap()),
         rotation_keys,
     };
     match create_op(create_op_input, rotation_keypair.secret_key()).await {
