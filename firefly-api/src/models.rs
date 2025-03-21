@@ -1,4 +1,8 @@
-#![allow(clippy::large_enum_variant, clippy::enum_variant_names)]
+#![allow(
+    non_camel_case_types,
+    clippy::large_enum_variant,
+    clippy::enum_variant_names
+)]
 
 pub mod servicemodelapi {
     tonic::include_proto!("servicemodelapi");

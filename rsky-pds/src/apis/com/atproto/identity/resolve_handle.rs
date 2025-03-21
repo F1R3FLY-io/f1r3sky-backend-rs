@@ -47,14 +47,14 @@ async fn inner_resolve_handle(
     match user {
         Some(user) => did = Some(user.did),
         None => {
-            let supported_handle = env_list("PDS_SERVICE_HANDLE_DOMAINS")
-                .iter()
-                .find(|host| handle.ends_with(host.as_str()) || handle == host[1..])
-                .is_some();
+            // let supported_handle = env_list("PDS_SERVICE_HANDLE_DOMAINS")
+            //     .iter()
+            //     .find(|host| handle.ends_with(host.as_str()) || handle == host[1..])
+            //     .is_some();
             // this should be in our DB & we couldn't find it, so fail
-            if supported_handle {
-                bail!("unable to resolve handle");
-            }
+            // if supported_handle {
+            //     bail!("unable to resolve handle");
+            // }
         }
     }
 

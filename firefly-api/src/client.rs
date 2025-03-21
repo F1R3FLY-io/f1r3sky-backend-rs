@@ -1,20 +1,15 @@
 use anyhow::{anyhow, Context};
 use helpers::{build_deploy_msg, FromExpr};
-use models::casper::v1::deploy_service_client::DeployServiceClient;
-use models::casper::v1::propose_service_client::ProposeServiceClient;
-use models::casper::v1::{
-    deploy_response,
-    find_deploy_response,
-    propose_response,
-    rho_data_response,
-};
-use models::casper::{DataAtNameByBlockQuery, FindDeployQuery, ProposeQuery};
-use models::rhoapi::expr::ExprInstance;
-use models::rhoapi::{Expr, Par};
 use secp256k1::SecretKey;
 
-mod helpers;
-mod models;
+use crate::models::casper::v1::deploy_service_client::DeployServiceClient;
+use crate::models::casper::v1::propose_service_client::ProposeServiceClient;
+use crate::models::casper::v1::{deploy_response, propose_response, rho_data_response};
+use crate::models::casper::{DataAtNameByBlockQuery, ProposeQuery};
+use crate::models::rhoapi::expr::ExprInstance;
+use crate::models::rhoapi::{Expr, Par};
+
+pub mod helpers;
 
 pub struct Client {
     wallet_key: SecretKey,
@@ -55,18 +50,12 @@ impl Client {
             .message
             .context("missing do_deploy responce")?;
 
-        let result = match resp {
-            deploy_response::Message::Result(result) => result,
+        match resp {
+            deploy_response::Message::Result(_) => (),
             deploy_response::Message::Error(err) => {
                 return Err(anyhow!("do_deploy error: {err:?}"))
             }
-        };
-
-        let suffix = result
-            .strip_prefix("Success!\nDeployId is: ")
-            .context("failed to extract deploy id")?;
-
-        let deploy_id = hex::decode(suffix).context("failed to decode deploy id")?;
+        }
 
         let resp = self
             .propose_client
@@ -77,24 +66,16 @@ impl Client {
             .message
             .context("missing propose responce")?;
 
-        match resp {
-            propose_response::Message::Result(_) => (),
+        let block_hash = match resp {
+            propose_response::Message::Result(block_hash) => block_hash,
             propose_response::Message::Error(err) => return Err(anyhow!("propose error: {err:?}")),
-        }
+        };
 
-        let resp = self
-            .deploy_client
-            .find_deploy(FindDeployQuery { deploy_id })
-            .await
-            .context("find_deploy grpc error")?
-            .into_inner()
-            .message
-            .context("missing find_deploy responce")?;
-
-        match resp {
-            find_deploy_response::Message::BlockInfo(result) => Ok(result.block_hash),
-            find_deploy_response::Message::Error(err) => Err(anyhow!("find_deploy error: {err:?}")),
-        }
+        block_hash
+            .strip_prefix("Success! Block ")
+            .and_then(|block_hash| block_hash.strip_suffix(" created and added."))
+            .map(Into::into)
+            .context("failed to extract block hash")
     }
 
     pub async fn get_channel_value<T>(&mut self, hash: String, channel: String) -> anyhow::Result<T>

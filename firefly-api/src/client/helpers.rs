@@ -6,8 +6,8 @@ use blake2::{Blake2b, Digest};
 use prost::Message as _;
 use secp256k1::{Message, Secp256k1, SecretKey};
 
-use super::models::casper::DeployDataProto;
-use super::models::rhoapi::expr::ExprInstance;
+use crate::models::casper::DeployDataProto;
+use crate::models::rhoapi::expr::ExprInstance;
 
 pub fn build_deploy_msg(key: &SecretKey, code: String) -> DeployDataProto {
     let mut msg = DeployDataProto {
@@ -99,6 +99,17 @@ where
                 })
                 .collect(),
             other => Err(anyhow!("unexpected expr type: {other:?} expected EMapBody")),
+        }
+    }
+}
+
+impl FromExpr for Vec<u8> {
+    fn from(val: ExprInstance) -> anyhow::Result<Self> {
+        match val {
+            ExprInstance::GByteArray(list) => Ok(list),
+            other => Err(anyhow!(
+                "unexpected expr type: {other:?} expected GByteArray"
+            )),
         }
     }
 }
