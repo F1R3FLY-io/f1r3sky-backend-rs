@@ -9,28 +9,24 @@
 Ensure the following tools and dependencies are installed before beginning:
 
 1. **nvm**: Use `nvm install` in each project directory to set the Node.js version.
-2. **nix**: Install Nix by running:
+1. **direnv**: Manage environment variables for your shell.
+1. **cargo**: Rust's package manager and build tool.
+1. **pnpm**: A high-performance JavaScript package manager.
+1. **sbt**: Scala's interactive build tool.
+1. **bnfc**: Converter for Backus-Naur Form syntax.
+1. **jflex**: Lexical analyzer generator for Java.
 
-```
-curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
-```
+---
 
-3. **direnv**: Manage environment variables for your shell.
-4. **cargo**: Rust's package manager and build tool.
-5. **pnpm**: A high-performance JavaScript package manager.
-6. **sbt**: Scala's interactive build tool.
-7. **bnfc**: Converter for Backus-Naur Form syntax.
-8. **jflex**: Lexical analyzer generator for Java.
+## Other documentation sources
+
+1. [paul_brain_dump.md](https://github.com/F1R3FLY-io/f1r3fly/blob/main/docs/paul_brain_dump.md): Documentation for [rnode](https://github.com/F1R3FLY-io/f1r3fly) implementation.
 
 ---
 
 ## Configuration
 
-Configuration environment variables are specified in the `.env` files. You should have the `.env` file located in:
-
-* The main directory
-* `docker/.env`
-
+Configuration environment variables are specified in the `.env` files. You should have the `.env` file located in the main directory.
 The required variables include:
 
 ```
@@ -52,8 +48,6 @@ PDS_BSKY_APP_VIEW_DID=                      # Retrieve this value in Step 4
 PDS_BSKY_APP_VIEW_URL=                      http://localhost:2584
 ROCKET_PORT=                                2583
 PDS_PORT=                                   2583
-
-VALIDATOR_PRIVATE_KEY=                      <your_secret>
 ```
 
 Replace `<your_secret>` with the appropriate secret values where required.
@@ -64,7 +58,7 @@ Replace `<your_secret>` with the appropriate secret values where required.
 
 ### 1. Build the RChain Node Image
 
-Navigate to the `[rchain/f1r3fly]` directory and execute the following:
+Navigate to the [rchain/f1r3fly](https://github.com/F1R3FLY-io/f1r3fly/) directory and execute the following:
 
 ```
 sbt ';compile ;project node ;Docker/publishLocal'
@@ -72,9 +66,9 @@ sbt ';compile ;project node ;Docker/publishLocal'
 
 ---
 
-### 2. Start the Backend
+### 2. Start the Frontend
 
-Navigate to the `[f1r3sky]` directory and run:
+Navigate to the [f1r3sky](https://github.com/F1R3FLY-io/f1r3sky) directory and run:
 
 ```
 yarn run web
@@ -82,9 +76,9 @@ yarn run web
 
 ---
 
-### 3. Run Legacy Backend (Backend 1)
+### 3. Run Node.js based Backend (Backend 1) for appview and plc registry from there because rsky does not implement them.
 
-Navigate to `[f1r3sky-backend1]` and execute:
+Navigate to [f1r3sky-backend1](https://github.com/F1R3FLY-io/f1r3sky-backend-ts) and execute:
 
 ```
 make deps && make build && ENABLE_PDS=0 make run-dev-env-logged
@@ -102,7 +96,7 @@ Check the logs of **Backend 1** for the `Bsky Appview DID`. Copy this value for 
 
 ### 5. Set the DID Value for Backend 2
 
-1. Navigate to `[f1r3sky-backend2]`.
+1. Navigate to [f1r3sky-backend2](https://github.com/F1R3FLY-io/f1r3sky-backend-rs).
 2. Open the `.env` file.
 3. Paste the copied **DID** value into `PDS_BSKY_APP_VIEW_DID` as follows:
 
@@ -114,7 +108,7 @@ PDS_BSKY_APP_VIEW_DID=<your_did_value>
 
 ### 6. Start Dockers with All Services
 
-Inside `[f1r3sky-backend2]`, run the following command to build and start all the required services:
+Inside [f1r3sky-backend2](https://github.com/F1R3FLY-io/f1r3sky-backend-rs), run the following command to build and start all the required services:
 
 ```
 docker compose -f docker/docker-compose.yaml up --build --force-recreate --wait
@@ -124,7 +118,7 @@ docker compose -f docker/docker-compose.yaml up --build --force-recreate --wait
 
 ### 7. Start the Rust Backend
 
-1. Once inside `[f1r3sky-backend2]`, navigate to `rsky-pos`:
+1. Once inside [f1r3sky-backend2](https://github.com/F1R3FLY-io/f1r3sky-backend-rs), navigate to `rsky-pos`:
 
 ```
 cd rsky-pos
