@@ -11,6 +11,7 @@ NOTE.md
 /classifier/*.tsv
 Rocket.toml
 *.pem
+!/docker/ssl/*
 **/data/
 
 # dotenv environment variable files
