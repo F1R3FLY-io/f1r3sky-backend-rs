@@ -48,7 +48,6 @@ POST `/api/wallet/request`
 ```json
 {
   "amount": 100,
-  "to_address": "1DkyAJL8Kt8O67GJNKJbdd9083Qh26jklQepA",
   "description": ""
 }
 ```
