@@ -63,5 +63,6 @@ pub mod read_after_write;
 pub mod repo;
 pub mod schema;
 pub mod sequencer;
+pub mod wallet;
 pub mod well_known;
 pub mod xrpc_server;
