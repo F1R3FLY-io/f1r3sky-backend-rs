@@ -460,3 +460,4 @@ impl From<handle::errors::Error> for ApiError {
 
 pub mod app;
 pub mod com;
+pub mod firefly;
