@@ -20,6 +20,12 @@
       <sourceFolder url="file://$MODULE_DIR$/rsky-labeler/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/rsky-jetstream-subscriber/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/rsky-repo/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/cypher/backend/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/cypher/frontend/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/firefly-api/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/firefly-events-sync/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/firefly-state-sync/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/rsky-satnav/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
       <excludeFolder url="file://$MODULE_DIR$/venv" />
     </content>

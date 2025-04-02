@@ -9,7 +9,7 @@ anyhow     = { version = "1.0" }
 base64     = { version = "0.22" }
 blake2     = { version = "0.10" }
 prost      = { version = "0.13" }
-secp256k1  = { version = "0.30" }
+secp256k1  = {workspace = true} # must be the same version as in rsky-pds
 serde      = { version = "1.0", features = ["derive"] }
 serde_json = { version = "1.0" }
 tokio      = { version = "1.43", features = ["macros", "rt-multi-thread"] }
