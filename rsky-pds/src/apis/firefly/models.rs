@@ -1,4 +1,5 @@
 #[derive(Debug, Deserialize, Serialize, Clone)]
+#[serde(rename_all = "lowercase")]
 pub enum RequestStatus {
     DONE,
     ONGOING,
@@ -16,7 +17,15 @@ pub struct Request {
 pub struct Exchange {}
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
+#[serde(rename_all = "lowercase")]
+pub enum Direction {
+    INCOMING,
+    OUTGOING,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Boost {
+    pub direction: Direction,
     pub date: u64,
     pub amount: u128,
     pub post: String,
@@ -24,6 +33,7 @@ pub struct Boost {
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Transfer {
+    pub direction: Direction,
     pub date: u64,
     pub amount: u128,
     pub to_address: String,
