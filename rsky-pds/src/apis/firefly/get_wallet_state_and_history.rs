@@ -106,15 +106,8 @@ async fn get_balance(wallet_address: &str) -> Result<u128, anyhow::Error> {
     }
 }
 
-#[tracing::instrument(skip_all)]
-#[rocket::get("/state")]
-pub async fn get_wallet_state_and_history(
-    // auth: AccessStandard,
-) -> Result<Json<WalletStateAndHistory>, ApiError> {
-
-    // let wallet_key = auth.wallet_key;
-    let wallet_address = "1111EjdAxnKb5zKUc8ikuxfdi3kwSGH7BJCHKWjnVzfAF3SjCBvjh";
-    let wallet_secret = "6a786ec387aff99fcce1bd6faa35916bfad3686d5c98e90a89f77670f535607c";
+async fn get_balance_rho(wallet_address: &str) -> String {
+        let wallet_secret = "6a786ec387aff99fcce1bd6faa35916bfad3686d5c98e90a89f77670f535607c";
 
 
     let deploy_service_url = "http://127.0.0.1:40401";
@@ -138,38 +131,47 @@ pub async fn get_wallet_state_and_history(
         }
     };
 
-    // let check_balance = check_balance_rho(wallet_address);
-    //
-    // let balance_response = client.full_deploy(check_balance).await;
-    // let balance_response_hash = balance_response.unwrap_or_else(|err| {
-    //     return panic!(
-    //         "Failed to deploy check_balance: {err}"
-    //     )
-    // });
-    //
-    // println!("balance response hash: {:?}", balance_response_hash);
-    //
-    // let entry: ServiceHash = client
-    //             .get_channel_value(balance_response_hash, "balance".parse().unwrap())
-    //             .await?;
-    //
-    // let balance_response: String = client
-    //     .get_channel_value(entry.block_hash, entry.channel_name.to_string())
-    //     .await
-    //     .unwrap_or_else(|err| {
-    //         format!(
-    //             "Failed to get channel value: {err}"
-    //         )
-    //     });
-    //
-    // println!("balance response: {:?}", balance_response);
+    let check_balance = check_balance_rho(wallet_address);
+
+    let balance_response = client.full_deploy(check_balance).await;
+    let balance_response_hash = balance_response.unwrap_or_else(|err| {
+        return panic!(
+            "Failed to deploy check_balance: {err}"
+        )
+    });
+
+    println!("balance response hash: {:?}", balance_response_hash);
+
+    let entry: ServiceHash = client
+                .get_channel_value(balance_response_hash, "balance".parse().unwrap())
+                .await?;
+
+    let balance_response: String = client
+        .get_channel_value(entry.block_hash, entry.channel_name.to_string())
+        .await
+        .unwrap_or_else(|err| {
+            format!(
+                "Failed to get channel value: {err}"
+            )
+        });
+
+    println!("balance response: {:?}", balance_response);
+}
+
+#[tracing::instrument(skip_all)]
+#[rocket::get("/state")]
+pub async fn get_wallet_state_and_history(
+    // auth: AccessStandard,
+) -> Result<Json<WalletStateAndHistory>, ApiError> {
+
+    // let wallet_key = auth.wallet_key;
+    let wallet_address = "1111EjdAxnKb5zKUc8ikuxfdi3kwSGH7BJCHKWjnVzfAF3SjCBvjh";
 
     let balance = get_balance(wallet_address).await.unwrap_or(0);
 
-
     Ok(Json(WalletStateAndHistory {
         address: Default::default(),
-        balance: balance,
+        balance,
         requests: vec![],
         exchanges: vec![],
         boosts: vec![],
