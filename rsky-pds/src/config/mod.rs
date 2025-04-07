@@ -159,6 +159,7 @@ pub fn env_to_cfg() -> ServerConfig {
         },
     };
     let crawlers_cfg = env_list("PDS_CRAWLERS");
+    let read_node_cfg: Option<String> = env_str("READ_NODE_URL");
 
     ServerConfig {
         service: service_cfg,
