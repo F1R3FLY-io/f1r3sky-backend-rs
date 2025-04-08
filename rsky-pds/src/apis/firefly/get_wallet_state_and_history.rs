@@ -32,34 +32,6 @@ fn check_balance_rho(wallet_address: &str) -> String {
 "#;
     check_balance_rho_template.replace("WALLET_ADDRES", wallet_address)
 }
-
-fn example_rho() { r#"
-  new return, rl(`rho:registry:lookup`), RevVaultCh, vaultCh in {    rl!(`rho:rchain:revVault`, *RevVaultCh) |    for (@(_, RevVault) <- RevVaultCh) {      @RevVault!("findOrCreate", "1111EjdAxnKb5zKUc8ikuxfdi3kwSGH7BJCHKWjnVzfAF3SjCBvjh", *vaultCh) |      for (@maybeVault <- vaultCh) {        match maybeVault {          (true, vault) => @vault!("balance", *return)          (false, err)  => return!(err)        }      }    }  }
-"#;}
-
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-struct ServiceHash {
-    block_hash: String,
-    channel_name: Uuid,
-}
-
-impl FromExpr for ServiceHash {
-    fn from(val: ExprInstance) -> anyhow::Result<Self> {
-        let mut map: HashMap<String, String> = FromExpr::from(val)?;
-
-        let block_hash = map.remove("block_hash").unwrap();
-        let channel_name = map
-            .remove("channel_name").unwrap();
-        let channel_name: Uuid = channel_name.parse()?;
-
-        anyhow::Ok(ServiceHash {
-            block_hash,
-            channel_name,
-        })
-    }
-}
-
 fn read_node_api() -> String {
     let read_node_url = "http://localhost:40413";
     let read_node_method = "explore-deploy";
@@ -77,7 +49,7 @@ async fn get_balance(wallet_address: &str) -> Result<u128, anyhow::Error> {
 
 
     let response = http_client
-        .post(&read_node_api())
+        .post(&url)
         .body(check_balance)
         .header("Content-Type", "text/plain")
         .send()
@@ -104,58 +76,6 @@ async fn get_balance(wallet_address: &str) -> Result<u128, anyhow::Error> {
     } else {
         panic!("Failed to send request: {:?}", response.status())
     }
-}
-
-async fn get_balance_rho(wallet_address: &str) -> String {
-        let wallet_secret = "6a786ec387aff99fcce1bd6faa35916bfad3686d5c98e90a89f77670f535607c";
-
-
-    let deploy_service_url = "http://127.0.0.1:40401";
-    let propose_service_url = "http://127.0.0.1:40402";
-
-    let wallet_key = SecretKey::from_slice(&hex::decode(wallet_secret).unwrap()).unwrap();
-
-    let client = firefly_api::Client::new(
-        wallet_key,
-        deploy_service_url.parse().unwrap(),
-        propose_service_url.parse().unwrap(),
-    )
-    .await;
-    let mut client = match client {
-        Ok(client) => client,
-        Err(err) => {
-            tracing::error!("Failed to create Firefly client: {err}");
-            return panic!(
-                "Failed to create Firefly client: {err}"
-            )
-        }
-    };
-
-    let check_balance = check_balance_rho(wallet_address);
-
-    let balance_response = client.full_deploy(check_balance).await;
-    let balance_response_hash = balance_response.unwrap_or_else(|err| {
-        return panic!(
-            "Failed to deploy check_balance: {err}"
-        )
-    });
-
-    println!("balance response hash: {:?}", balance_response_hash);
-
-    let entry: ServiceHash = client
-                .get_channel_value(balance_response_hash, "balance".parse().unwrap())
-                .await?;
-
-    let balance_response: String = client
-        .get_channel_value(entry.block_hash, entry.channel_name.to_string())
-        .await
-        .unwrap_or_else(|err| {
-            format!(
-                "Failed to get channel value: {err}"
-            )
-        });
-
-    println!("balance response: {:?}", balance_response);
 }
 
 #[tracing::instrument(skip_all)]
