@@ -1,16 +1,17 @@
-use std::collections::HashMap;
-use anyhow::anyhow;
-use rocket::serde::json::Json;
 use super::models::WalletStateAndHistory;
 use crate::apis::ApiError;
 use crate::auth_verifier::AccessStandard;
+use anyhow::anyhow;
+use rocket::serde::json::Json;
+use std::collections::HashMap;
 // use firefly_api::client::helpers::FromExpr;
 // use firefly_api::models::rhoapi::expr::ExprInstance;
-use secp256k1::{Keypair, Secp256k1, SecretKey};
-use uuid::Uuid;
 use firefly_api::client::helpers::FromExpr;
 use firefly_api::models::rhoapi::expr::ExprInstance;
+use secp256k1::{Keypair, Secp256k1, SecretKey};
+use uuid::Uuid;
 
+use firefly_api::client::ReadNodeClient;
 use reqwest::Client;
 use rocket::http::tls::rustls::internal::msgs::enums::HeartbeatMessageType::Response;
 use serde_json::Value;
@@ -39,51 +40,28 @@ fn read_node_api() -> String {
 }
 
 async fn get_balance(wallet_address: &str) -> Result<u128, anyhow::Error> {
-            // Get the URL from the `read_node_api` function
-    let url = read_node_api();
+    let check_balance_code = check_balance_rho(wallet_address);
 
-    let check_balance = check_balance_rho(wallet_address);
+    let client = ReadNodeClient::new();
 
-    // Create an HTTP client
-    let http_client = Client::new();
-
-
-    let response = http_client
-        .post(&url)
-        .body(check_balance)
-        .header("Content-Type", "text/plain")
-        .send()
-        .await?;
-
-        // Ensure the request was successful
-    if response.status().is_success() {
-        // Parse the JSON response
-        let json: Value = response.json().await?;
-        println!("JSON response: {:?}", json);
-        // Navigate into `expr[0].ExprInt.data`
-        if let Some(balance) = json["expr"]
-            .as_array()
-            .and_then(|expr_array| expr_array.get(0))
-            .and_then(|expr| expr["ExprInt"].get("data"))
-        {
-            println!("ExprInt data value: {}", balance);
-            Ok(balance.as_u64().unwrap() as u128)
-        } else {
-            panic!("Failed to extract ExprInt data value.")
-        }
-
-
+    let json: Value = client.get_data(check_balance_code).await?;
+    println!("JSON response: {:?}", json);
+    // Navigate into `expr[0].ExprInt.data`
+    if let Some(balance) = json["expr"]
+        .as_array()
+        .and_then(|expr_array| expr_array.get(0))
+        .and_then(|expr| expr["ExprInt"].get("data"))
+    {
+        Ok(balance.as_u64().unwrap() as u128)
     } else {
-        panic!("Failed to send request: {:?}", response.status())
+        Err(anyhow!("Failed to extract balance value."))
     }
 }
 
 #[tracing::instrument(skip_all)]
 #[rocket::get("/state")]
-pub async fn get_wallet_state_and_history(
-    // auth: AccessStandard,
+pub async fn get_wallet_state_and_history(// auth: AccessStandard,
 ) -> Result<Json<WalletStateAndHistory>, ApiError> {
-
     // let wallet_key = auth.wallet_key;
     let wallet_address = "1111EjdAxnKb5zKUc8ikuxfdi3kwSGH7BJCHKWjnVzfAF3SjCBvjh";
 

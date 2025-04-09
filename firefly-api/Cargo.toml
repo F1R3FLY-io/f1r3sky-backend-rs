@@ -15,6 +15,7 @@ serde_json = { version = "1.0" }
 tokio      = { version = "1.43", features = ["macros", "rt-multi-thread"] }
 tonic      = { version = "0.12" }
 uuid       = { version = "1.13", features = ["serde", "v4"] }
+reqwest = "0.12.15"
 
 [build-dependencies]
 tonic-build = { version = "0.12" }
