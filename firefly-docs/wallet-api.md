@@ -50,8 +50,7 @@ POST `/api/wallet/request`
 ```json
 {
   "amount": 100,
-  "description": "",
-  "from_address": "1DkyAJL8Kt8O67GJNKJbdd9083Qh26jklQepA",
+  "description": ""
 }
 ```
 
@@ -110,9 +109,3 @@ POST `/api/wallet/transfer`
 Responce:
 
 200 OK
-
-```json
-{
-  "id": ""
-}
-```
