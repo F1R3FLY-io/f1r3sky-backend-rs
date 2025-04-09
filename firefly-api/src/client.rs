@@ -52,12 +52,14 @@ impl Client {
             .message
             .context("missing do_deploy responce")?;
 
-        match resp {
-            deploy_response::Message::Result(_) => (),
+        let response_hash = match resp {
+            deploy_response::Message::Result(message) => message,
             deploy_response::Message::Error(err) => {
                 return Err(anyhow!("do_deploy error: {err:?}"));
             }
-        }
+        };
+
+        println!("response_hash: {}", response_hash);
 
         let resp = self
             .propose_client
@@ -73,11 +75,13 @@ impl Client {
             propose_response::Message::Error(err) => return Err(anyhow!("propose error: {err:?}")),
         };
 
-        block_hash
+        let block_hash = block_hash
             .strip_prefix("Success! Block ")
             .and_then(|block_hash| block_hash.strip_suffix(" created and added."))
             .map(Into::into)
-            .context("failed to extract block hash")
+            .context("failed to extract block hash")?;
+        println!("block_hash: {}", &block_hash);
+        Ok(block_hash)
     }
 
     pub async fn get_channel_value<T>(&mut self, hash: String, channel: String) -> anyhow::Result<T>

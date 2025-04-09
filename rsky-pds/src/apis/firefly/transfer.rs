@@ -1,5 +1,7 @@
 use rocket::serde::json::Json;
 
+use rand::{distributions::Alphanumeric, Rng};
+
 use crate::apis::ApiError;
 use crate::auth_verifier::AccessStandard;
 
@@ -58,11 +60,16 @@ new rl(`rho:registry:lookup`), RevVaultCh in {
     }
 }
 "#;
+    let random = rand::thread_rng()
+            .sample_iter(&Alphanumeric)
+            .take(6)
+            .map(char::from)
+            .collect::<String>();
     check_balance_rho_template
         .replace("WALLET_ADDRES_FROM", wallet_address_from)
         .replace("WALLET_ADDRES_TO", wallet_address_to)
         .replace("AMOUNT", &amount.to_string())
-        .replace("RANDOM", &Uuid::new_v4().to_string())
+        .replace("RANDOM", &random)
 }
 async fn set_transfer_request(wallet_address_to: &str, amount: u128) -> Result<String, ApiError> {
     let wallet_secret = "6a786ec387aff99fcce1bd6faa35916bfad3686d5c98e90a89f77670f535607c";
