@@ -5,3 +5,4 @@ pub mod get_wallet_state_and_history;
 pub mod models;
 pub mod transfer;
 mod client;
+mod state;

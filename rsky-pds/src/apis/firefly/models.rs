@@ -8,6 +8,7 @@ pub enum RequestStatus {
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Request {
+    pub id: String,
     pub date: u64,
     pub amount: u128,
     pub status: RequestStatus,
@@ -25,6 +26,8 @@ pub enum Direction {
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Boost {
+    pub id: String,
+    pub username: String,
     pub direction: Direction,
     pub date: u64,
     pub amount: u128,
@@ -33,6 +36,7 @@ pub struct Boost {
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Transfer {
+    pub id: String,
     pub direction: Direction,
     pub date: u64,
     pub amount: u128,

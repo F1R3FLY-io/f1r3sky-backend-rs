@@ -6,6 +6,7 @@ use rocket::serde::json::Json;
 use std::collections::HashMap;
 // use firefly_api::client::helpers::FromExpr;
 // use firefly_api::models::rhoapi::expr::ExprInstance;
+use apis::firefly::state::example_wallet_history;
 use firefly_api::client::helpers::FromExpr;
 use firefly_api::models::rhoapi::expr::ExprInstance;
 use secp256k1::{Keypair, Secp256k1, SecretKey};
@@ -15,6 +16,7 @@ use firefly_api::client::ReadNodeClient;
 use reqwest::Client;
 use rocket::http::tls::rustls::internal::msgs::enums::HeartbeatMessageType::Response;
 use serde_json::Value;
+use crate::apis;
 
 fn check_balance_rho(wallet_address: &str) -> String {
     let check_balance_rho_template = r#"
@@ -64,15 +66,14 @@ pub async fn get_wallet_state_and_history(// auth: AccessStandard,
 ) -> Result<Json<WalletStateAndHistory>, ApiError> {
     // let wallet_key = auth.wallet_key;
     let wallet_address = "1111EjdAxnKb5zKUc8ikuxfdi3kwSGH7BJCHKWjnVzfAF3SjCBvjh";
-
     let balance = get_balance(wallet_address).await.unwrap_or(0);
 
-    Ok(Json(WalletStateAndHistory {
-        address: Default::default(),
+    let mut base_state = example_wallet_history();
+    let state = WalletStateAndHistory{
         balance,
-        requests: vec![],
-        exchanges: vec![],
-        boosts: vec![],
-        transfers: vec![],
-    }))
+        address: wallet_address.to_string(),
+        ..base_state
+    };
+
+    Ok(Json(state))
 }
