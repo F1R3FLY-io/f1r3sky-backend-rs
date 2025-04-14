@@ -14,6 +14,11 @@ pub struct ServerConfig {
     pub invites: InvitesConfig,
     pub identity: IdentityConfig,
     pub crawlers: Vec<String>,
+    pub read_node_url: Option<String>,
+    pub default_wallet_key: Option<String>,
+    pub default_wallet_address: Option<String>,
+    pub propose_service_url: Option<String>,
+    pub deploy_service_url: Option<String>,
 }
 
 /// BksyAppViewConfig, ModServiceConfig, ReportServiceConfig, etc.
@@ -159,7 +164,12 @@ pub fn env_to_cfg() -> ServerConfig {
         },
     };
     let crawlers_cfg = env_list("PDS_CRAWLERS");
-    let read_node_cfg: Option<String> = env_str("READ_NODE_URL");
+    let read_node_url: Option<String> = env_str("READ_NODE_URL");
+    let default_wallet_key: Option<String> = env_str("DEFAULT_WALLET_KEY");
+    let default_wallet_address: Option<String> = env_str("DEFAULT_WALLET_ADDRESS");
+    let deploy_service_url: Option<String> = env_str("DEPLOY_SERVICE_URL");
+    let propose_service_url: Option<String> = env_str("PROPOSE_SERVICE_URL");
+
 
     ServerConfig {
         service: service_cfg,
@@ -170,6 +180,11 @@ pub fn env_to_cfg() -> ServerConfig {
         invites: invites_cfg,
         crawlers: crawlers_cfg,
         identity: identity_cfg,
+        read_node_url,
+        default_wallet_key,
+        default_wallet_address,
+        deploy_service_url,
+        propose_service_url,
     }
 }
 

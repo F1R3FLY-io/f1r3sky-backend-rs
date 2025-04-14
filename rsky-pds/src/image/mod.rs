@@ -1,5 +1,5 @@
 use anyhow::Result;
-use image::io::Reader as ImageReader;
+use image::ImageReader as ImageReader;
 use image::{guess_format, GenericImageView};
 use std::io::Cursor;
 

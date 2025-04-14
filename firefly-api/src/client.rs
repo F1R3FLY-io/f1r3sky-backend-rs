@@ -1,9 +1,6 @@
-use anyhow::{Context, anyhow};
-use helpers::{FromExpr, build_deploy_msg};
-use reqwest::Client as HttpClient;
+use anyhow::{anyhow, Context};
+use helpers::{build_deploy_msg, FromExpr};
 use secp256k1::SecretKey;
-use serde_json::Value;
-
 use crate::models::casper::v1::deploy_service_client::DeployServiceClient;
 use crate::models::casper::v1::propose_service_client::ProposeServiceClient;
 use crate::models::casper::v1::{deploy_response, propose_response, rho_data_response};
@@ -40,27 +37,31 @@ impl Client {
         })
     }
 
-    pub async fn full_deploy(&mut self, code: String) -> anyhow::Result<String> {
+    pub async fn deploy(&mut self, code: String) -> anyhow::Result<String> {
         let msg = build_deploy_msg(&self.wallet_key, code);
 
-        let resp = self
+        let deply_response = self
             .deploy_client
             .do_deploy(msg)
             .await
             .context("do_deploy grpc error")?
-            .into_inner()
+            .into_inner();
+
+        let resp_message = deply_response
             .message
             .context("missing do_deploy responce")?;
 
-        let response_hash = match resp {
+        let message = match resp_message {
             deploy_response::Message::Result(message) => message,
             deploy_response::Message::Error(err) => {
                 return Err(anyhow!("do_deploy error: {err:?}"));
             }
         };
 
-        println!("response_hash: {}", response_hash);
+        Ok(message)
+    }
 
+    pub async fn propose(&mut self) -> anyhow::Result<String> {
         let resp = self
             .propose_client
             .propose(ProposeQuery { is_async: false })
@@ -75,12 +76,20 @@ impl Client {
             propose_response::Message::Error(err) => return Err(anyhow!("propose error: {err:?}")),
         };
 
+        // println!("block_hash_all: {}", &block_hash);
+
         let block_hash = block_hash
             .strip_prefix("Success! Block ")
             .and_then(|block_hash| block_hash.strip_suffix(" created and added."))
             .map(Into::into)
             .context("failed to extract block hash")?;
-        println!("block_hash: {}", &block_hash);
+        // println!("block_hash: {}", &block_hash);
+        Ok(block_hash)
+    }
+
+    pub async fn full_deploy(&mut self, code: String) -> anyhow::Result<String> {
+        let _response_hash = self.deploy(code).await.context("deploy error")?;
+        let block_hash = self.propose().await.context("propose error")?;
         Ok(block_hash)
     }
 
@@ -131,46 +140,3 @@ impl Client {
     }
 }
 
-pub struct ReadNodeClient {}
-
-impl ReadNodeClient {
-    pub fn new() -> Self {
-        Self {}
-    }
-
-    fn read_node_api(self) -> String {
-        let read_node_url = "http://localhost:40413";
-        let read_node_method = "explore-deploy";
-        format!("{}/api/{}", read_node_url, read_node_method)
-    }
-
-    pub async fn get_data(self, code: String) -> Result<Value, anyhow::Error> {
-        // Get the URL from the `read_node_api` function
-        let url = self.read_node_api();
-
-        // Create an HTTP client
-        let http_client = HttpClient::new();
-
-        let response = http_client
-            .post(&url)
-            .body(code)
-            .header("Content-Type", "text/plain")
-            .send()
-            .await?;
-
-        // Ensure the request was successful
-        if response.status().is_success() {
-            // Parse the JSON response
-            let json_data: Value = response
-                .json()
-                .await
-                .context("failed to parse response as JSON")?;
-            Ok(json_data)
-        } else {
-            Err(anyhow!(
-                "HTTP request failed with status: {}",
-                response.status()
-            ))
-        }
-    }
-}
