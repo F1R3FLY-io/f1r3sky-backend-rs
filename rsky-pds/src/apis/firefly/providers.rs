@@ -1,15 +1,11 @@
 use anyhow::{anyhow, Context};
 use secp256k1::SecretKey;
-use serde_json::Value;
 
 use firefly_api::client::Client;
 use firefly_api::read_node_client::ReadNodeClient;
-use rsky_common::env::{env_bool, env_int, env_list, env_str};
+use rsky_common::env::env_str;
 
-use crate::apis::firefly::contracts::check_balance_rho;
-use crate::apis::firefly::contracts::set_transfer_rho;
 use crate::apis::firefly::repositories::FireflyRepository;
-use crate::config::ServerConfig;
 
 #[derive(Debug, Clone)]
 pub struct FireflyProvider {
