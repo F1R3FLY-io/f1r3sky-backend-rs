@@ -1,29 +1,34 @@
 [package]
+name = "rsky-satnav"
+version = "0.1.0"
 authors = ["Rudy Fraser <him@rudyfraser.com>"]
 edition = "2021"
-name    = "rsky-satnav"
-version = "0.1.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-anyhow               = "1.0.97"
-base64               = "0.22.1"
-dioxus               = { version = "0.6.0", features = [] }
-dioxus-web           = "0.6.3"
-getrandom            = { version = "0.2", features = ["js"] }
-gloo-file            = { version = "0.3.0", features = ["futures"] }
-hex                  = "0.4"
-ipld-core            = "0.4.2"
-iroh-car             = "0.5.1"
-serde_ipld_dagcbor   = { workspace = true }
-serde_json           = { workspace = true }
-wasm-bindgen         = "0.2.100"
+getrandom = { version = "0.2", features = ["js"] }
+dioxus = { version = "0.6.0", features = [] }
+wasm-bindgen = "0.2.100"
+web-sys = { version = "0.3.77",features = [
+    "File",
+    "FileList",
+    "HtmlInputElement",
+    "EventTarget",
+    "Event"] }
 wasm-bindgen-futures = "0.4.50"
-web-sys              = { version = "0.3.77", features = ["Event", "EventTarget", "File", "FileList", "HtmlInputElement"] }
+gloo-file = { version = "0.3.0",features = ["futures"] }
+anyhow = "1.0.97"
+dioxus-web = "0.6.3"
+iroh-car = "0.5.1"
+serde_ipld_dagcbor = {workspace = true}
+serde_json = {workspace = true}
+base64 = "0.22.1"
+ipld-core = "0.4.2"
+hex = "0.4"
 
 [features]
 default = ["web"]
+web = ["dioxus/web"]
 desktop = ["dioxus/desktop"]
-mobile  = ["dioxus/mobile"]
-web     = ["dioxus/web"]
+mobile = ["dioxus/mobile"]
