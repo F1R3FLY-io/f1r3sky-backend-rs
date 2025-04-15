@@ -22,6 +22,7 @@ use rsky_common::env::env_list;
 use rsky_identity::types::{DidCache, IdentityResolverOpts};
 use rsky_identity::IdResolver;
 use rsky_pds::account_manager::AccountManager;
+use rsky_pds::apis::firefly::providers::FireflyProvider;
 use rsky_pds::apis::*;
 use rsky_pds::config::env_to_cfg;
 use rsky_pds::crawlers::Crawlers;
@@ -231,6 +232,7 @@ async fn rocket() -> _ {
     let shield = Shield::default().enable(NoSniff::Enable);
 
     let wallet_service = WalletService {};
+    let firefly_provider = FireflyProvider::new().unwrap();
 
     rocket::custom(figment)
         .mount(
@@ -338,4 +340,5 @@ async fn rocket() -> _ {
         .manage(local_viewer)
         .manage(app_view_agent)
         .manage(wallet_service)
+        .manage(firefly_provider)
 }

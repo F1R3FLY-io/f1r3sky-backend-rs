@@ -1,10 +1,10 @@
 use super::models::WalletStateAndHistory;
-use crate::apis::ApiError;
 use crate::apis::firefly::state::example_wallet_history;
+use crate::apis::ApiError;
 use rocket::serde::json::Json;
 use rocket::State;
 
-use crate::apis::firefly::client::FireflyClient;
+use crate::apis::firefly::providers::FireflyProvider;
 use crate::config::ServerConfig;
 
 #[tracing::instrument(skip_all)]
@@ -12,9 +12,9 @@ use crate::config::ServerConfig;
 pub async fn get_wallet_state_and_history(
     // auth: AccessStandard,  // remove comment to turn on auth
     // TODO: auth should be turned on when we'll solve storage parameters per user
-    cfg: &State<ServerConfig>,
+    provider: &State<FireflyProvider>,
 ) -> Result<Json<WalletStateAndHistory>, ApiError> {
-    let client = FireflyClient::new(&cfg)?;
+    let client = provider.firefly();
     let wallet_address = client.get_wallet_address();
     let balance = client.get_balance().await.unwrap_or(0);
 

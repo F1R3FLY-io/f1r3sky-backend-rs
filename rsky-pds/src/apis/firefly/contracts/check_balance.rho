@@ -1,6 +1,6 @@
 new return, rl(`rho:registry:lookup`), RevVaultCh, vaultCh in {
-      rl!(`rho:rchain:revVault`, *RevVaultCh) |
-      for (@(_, RevVault) <- RevVaultCh) {
+    rl!(`rho:rchain:revVault`, *RevVaultCh) |
+    for (@(_, RevVault) <- RevVaultCh) {
         @RevVault!("findOrCreate", "WALLET_ADDRES", *vaultCh) |
         for (@maybeVault <- vaultCh) {
             match maybeVault {

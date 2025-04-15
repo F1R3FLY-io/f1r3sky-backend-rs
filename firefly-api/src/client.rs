@@ -10,6 +10,7 @@ use crate::models::rhoapi::{Expr, Par};
 
 pub mod helpers;
 
+#[derive(Debug, Clone)]
 pub struct Client {
     wallet_key: SecretKey,
     deploy_client: DeployServiceClient<tonic::transport::Channel>,

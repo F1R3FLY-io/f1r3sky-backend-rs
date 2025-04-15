@@ -2,6 +2,7 @@ use serde_json::Value;
 use reqwest::Client as HttpClient;
 use anyhow::{anyhow, Context};
 
+#[derive(Debug, Clone)]
 pub struct ReadNodeClient {
     read_node_url: String,
 }
