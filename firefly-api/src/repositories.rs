@@ -1,23 +1,32 @@
-use crate::apis::firefly::contracts::{check_balance_rho, set_transfer_rho};
-use crate::apis::firefly::providers::FireflyProvider;
+use crate::contracts::{check_balance_rho, set_transfer_rho};
+use crate::providers::FireflyProvider;
 use anyhow::anyhow;
 use serde_json::Value;
 
 #[derive(Debug, Clone)]
 pub struct FireflyRepository {
     pub provider: FireflyProvider,
-    pub wallet_address: String,
-    pub wallet_key: String,
+    pub wallet_address: Option<String>,
+    pub wallet_key: Option<String>,
 }
 
 impl FireflyRepository {
-    pub fn get_wallet_address(&self) -> String {
-        self.wallet_address.clone()
+    pub fn get_wallet_address(&self) -> Result<String, anyhow::Error> {
+        match self.wallet_address.clone() {
+            Some(key) => Ok(key),
+            None => Err(anyhow!("Wallet address is not set.")),
+        }
+    }
+    pub fn get_wallet_key(&self) -> Result<String, anyhow::Error> {
+        match self.wallet_key.clone() {
+            Some(key) => Ok(key),
+            None => Err(anyhow!("Wallet key is not set.")),
+        }
     }
 
     pub async fn get_balance(&self) -> Result<u128, anyhow::Error> {
         let wallet_address = &self.get_wallet_address();
-        let check_balance_code = check_balance_rho(wallet_address);
+        let check_balance_code = check_balance_rho(wallet_address?);
 
         let json: Value = self
             .provider
@@ -40,9 +49,10 @@ impl FireflyRepository {
         wallet_address_to: &str,
         amount: u128,
     ) -> Result<String, anyhow::Error> {
-        let set_transfer = set_transfer_rho(&self.get_wallet_address(), wallet_address_to, amount);
+        let set_transfer = set_transfer_rho(&self.get_wallet_address()?, wallet_address_to, amount);
         // println!("{}", &set_transfer);
-        let mut client = self.provider.client().await?;
+        let wallet_key = self.get_wallet_key()?;
+        let mut client = self.provider.client(&wallet_key).await?;
 
         let deploy_response = client.deploy(set_transfer).await;
         let _deploy_response_msg = match deploy_response {

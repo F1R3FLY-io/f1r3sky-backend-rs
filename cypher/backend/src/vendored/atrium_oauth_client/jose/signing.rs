@@ -1,14 +1,14 @@
-use super::Header;
 use super::jwt::Claims;
-use base64::Engine;
+use super::Header;
 use base64::engine::general_purpose::URL_SAFE_NO_PAD;
+use base64::Engine;
 use ecdsa::{
-    Signature, SignatureSize, SigningKey,
     hazmat::{DigestPrimitive, SignPrimitive},
     signature::Signer,
+    Signature, SignatureSize, SigningKey,
 };
 use elliptic_curve::{
-    CurveArithmetic, PrimeCurve, Scalar, generic_array::ArrayLength, ops::Invert, subtle::CtOption,
+    generic_array::ArrayLength, ops::Invert, subtle::CtOption, CurveArithmetic, PrimeCurve, Scalar,
 };
 
 pub fn create_signed_jwt<C>(
