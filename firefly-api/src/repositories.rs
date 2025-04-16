@@ -48,9 +48,14 @@ impl FireflyRepository {
         &self,
         wallet_address_to: &str,
         amount: u128,
+        description: &str,
     ) -> Result<String, anyhow::Error> {
-        let set_transfer = set_transfer_rho(&self.get_wallet_address()?, wallet_address_to, amount);
-        // println!("{}", &set_transfer);
+        let set_transfer = set_transfer_rho(
+            &self.get_wallet_address()?,
+            wallet_address_to,
+            amount,
+            description,
+        );
         let wallet_key = self.get_wallet_key()?;
         let mut client = self.provider.client(&wallet_key).await?;
 
@@ -63,7 +68,6 @@ impl FireflyRepository {
                 return Err(anyhow!(error_msg));
             }
         };
-        // println!("deploy response: {}", &deploy_response_msg);
 
         let block_hash = client.propose().await;
         let block_hash = match block_hash {

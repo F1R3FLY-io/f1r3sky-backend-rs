@@ -17,7 +17,7 @@ new rl(`rho:registry:lookup`), RevVaultCh in {
                                 @vault!("transfer", revAddrTo, amount, *key, *resultCh) |
                                 for (@result <- resultCh) {
                                     match result {
-                                            (true , _  ) => deployId!((true, "Transfer successful (RANDOM)."))
+                                            (true , _  ) => deployId!((true, "DESCRIPTION"))
                                             (false, err) => deployId!((false, err))
                                         }
                                     }

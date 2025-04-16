@@ -19,10 +19,15 @@ pub async fn transfer(
     // TODO: auth should be turned on when we'll solve storage parameters per user
 ) -> Result<(), ApiError> {
     let TransferRequest {
-        amount, to_address, ..
+        amount,
+        to_address,
+        description,
+        ..
     } = body.into_inner();
     let client = provider.firefly();
-    let _response_hash = client.transfer_request(&to_address, amount).await?;
+    let _response_hash = client
+        .transfer_request(&to_address, amount, &description)
+        .await?;
 
     Ok(())
 }

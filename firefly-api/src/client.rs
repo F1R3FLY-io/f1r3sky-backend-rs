@@ -1,12 +1,12 @@
-use anyhow::{anyhow, Context};
-use helpers::{build_deploy_msg, FromExpr};
-use secp256k1::SecretKey;
 use crate::models::casper::v1::deploy_service_client::DeployServiceClient;
 use crate::models::casper::v1::propose_service_client::ProposeServiceClient;
 use crate::models::casper::v1::{deploy_response, propose_response, rho_data_response};
 use crate::models::casper::{DataAtNameByBlockQuery, ProposeQuery};
 use crate::models::rhoapi::expr::ExprInstance;
 use crate::models::rhoapi::{Expr, Par};
+use anyhow::{anyhow, Context};
+use helpers::{build_deploy_msg, FromExpr};
+use secp256k1::SecretKey;
 
 pub mod helpers;
 
@@ -77,14 +77,11 @@ impl Client {
             propose_response::Message::Error(err) => return Err(anyhow!("propose error: {err:?}")),
         };
 
-        // println!("block_hash_all: {}", &block_hash);
-
         let block_hash = block_hash
             .strip_prefix("Success! Block ")
             .and_then(|block_hash| block_hash.strip_suffix(" created and added."))
             .map(Into::into)
             .context("failed to extract block hash")?;
-        // println!("block_hash: {}", &block_hash);
         Ok(block_hash)
     }
 
@@ -140,4 +137,3 @@ impl Client {
         T::from(expr)
     }
 }
-

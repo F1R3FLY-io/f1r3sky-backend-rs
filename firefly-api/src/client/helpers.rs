@@ -4,10 +4,20 @@ use anyhow::{anyhow, Context};
 use blake2::digest::consts::U32;
 use blake2::{Blake2b, Digest};
 use prost::Message as _;
+use rand::distributions::Alphanumeric;
+use rand::Rng;
 use secp256k1::{Message, Secp256k1, SecretKey};
 
 use crate::models::casper::DeployDataProto;
 use crate::models::rhoapi::expr::ExprInstance;
+
+pub fn get_random_string(length: usize) -> String {
+    rand::thread_rng()
+        .sample_iter(&Alphanumeric)
+        .take(length)
+        .map(char::from)
+        .collect::<String>()
+}
 
 pub fn build_deploy_msg(key: &SecretKey, code: String) -> DeployDataProto {
     let mut msg = DeployDataProto {
