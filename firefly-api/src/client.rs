@@ -10,7 +10,6 @@ use secp256k1::SecretKey;
 
 pub mod helpers;
 
-#[derive(Debug, Clone)]
 pub struct Client {
     wallet_key: SecretKey,
     deploy_client: DeployServiceClient<tonic::transport::Channel>,
