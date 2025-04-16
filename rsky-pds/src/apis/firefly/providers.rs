@@ -16,10 +16,10 @@ pub fn get_firefly_provider() -> Result<FireflyProvider, Error> {
     let default_wallet_address = env_str("DEFAULT_WALLET_ADDRESS");
 
     FireflyProvider::new(
-        default_wallet_address,
         read_node_url,
         deploy_service_url,
         propose_service_url,
+        default_wallet_address,
         default_wallet_key,
     )
 }

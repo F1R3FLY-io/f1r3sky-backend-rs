@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Context};
+use anyhow::anyhow;
 use secp256k1::SecretKey;
 
 use crate::client::Client;
@@ -7,26 +7,26 @@ use crate::repositories::FireflyRepository;
 
 #[derive(Debug, Clone)]
 pub struct FireflyProvider {
-    wallet_address: Option<String>,
     read_node_url: String,
     deploy_service_url: String,
     propose_service_url: String,
+    wallet_address: Option<String>,
     wallet_key: Option<String>,
 }
 
 impl FireflyProvider {
     pub fn new(
-        wallet_address: Option<String>,
         read_node_url: String,
         deploy_service_url: String,
         propose_service_url: String,
+        wallet_address: Option<String>,
         wallet_key: Option<String>,
     ) -> Result<FireflyProvider, anyhow::Error> {
         Ok(FireflyProvider {
-            wallet_address,
             read_node_url,
             deploy_service_url,
             propose_service_url,
+            wallet_address,
             wallet_key,
         })
     }

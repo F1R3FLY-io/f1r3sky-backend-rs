@@ -25,8 +25,8 @@ impl FireflyRepository {
     }
 
     pub async fn get_balance(&self) -> Result<u128, anyhow::Error> {
-        let wallet_address = &self.get_wallet_address();
-        let check_balance_code = check_balance_rho(wallet_address?);
+        let wallet_address = &self.get_wallet_address()?;
+        let check_balance_code = check_balance_rho(wallet_address);
 
         let json: Value = self
             .provider

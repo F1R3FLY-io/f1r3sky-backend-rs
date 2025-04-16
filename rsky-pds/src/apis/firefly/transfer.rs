@@ -1,5 +1,5 @@
-use crate::apis::firefly::providers::FireflyProvider;
 use crate::apis::ApiError;
+use firefly_api::providers::FireflyProvider;
 use rocket::serde::json::Json;
 use rocket::State;
 
