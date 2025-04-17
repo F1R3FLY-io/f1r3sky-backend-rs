@@ -10,7 +10,7 @@ base64      = { version = "0.22" }
 clap        = { version = "4.5", features = ["derive"] }
 firefly-api = { path = "../firefly-api" }
 hex         = { version = "0.4" }
-secp256k1   = { version = "0.28.2", features = ["global-context", "hashes", "rand", "rand-std", "serde"] } # must be the same version as in firefly-api
+secp256k1   = { workspace = true }                                                     # must be the same version as in firefly-api
 serde       = { version = "1.0", features = ["derive"] }
 serde_json  = { version = "1.0" }
 tokio       = { version = "1.43", features = ["macros", "rt-multi-thread", "signal"] }
