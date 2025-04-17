@@ -29,7 +29,7 @@ diesel_migrations   = "*"
 dotenvy             = "0.15"
 email_address       = "0.2.4"
 event-emitter-rs    = "0.1.4"
-firefly-api         = { path = "../firefly-api" }
+firefly-api         = { workspace = true }
 futures             = "0.3.28"
 hex                 = "0.4.3"
 image               = "0.25.1"
