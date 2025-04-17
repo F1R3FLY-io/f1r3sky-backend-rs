@@ -14,6 +14,9 @@ Rocket.toml
 !/docker/ssl/*
 **/data/
 
+# RustRover and IntelliJ IDEA
+.idea/
+
 # dotenv environment variable files
 .env
 .env.development.local
