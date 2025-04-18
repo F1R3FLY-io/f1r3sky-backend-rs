@@ -1,5 +1,5 @@
 use super::models::WalletStateAndHistory;
-use crate::apis::firefly::state::example_wallet_history;
+use super::wallet_history_example::example_wallet_history;
 use crate::apis::ApiError;
 use rocket::serde::json::Json;
 use rocket::State;

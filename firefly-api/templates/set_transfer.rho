@@ -1,3 +1,4 @@
+//FIREFLY_OPERATION;SET_TRANSFER;WALLET_ADDRES_FROM;WALLET_ADDRES_TO;AMOUNT;DESCRIPTION
 new rl(`rho:registry:lookup`), RevVaultCh in {
     rl!(`rho:rchain:revVault`, *RevVaultCh) |
     for (@(_, RevVault) <- RevVaultCh) {
