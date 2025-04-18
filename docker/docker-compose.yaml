@@ -31,12 +31,12 @@ services:
     command: server /data --console-address ":9001"
 
   firefly:
-    build:
-      context: .
-      dockerfile: firefly.dockerfile
+    image: ghcr.io/f1r3fly-io/rnode:latest
     ports:
       - 40401:40401
       - 40402:40402
+    volumes:
+      - ./genesis:/var/lib/rnode/genesis
     command:
       - run
       - -s
