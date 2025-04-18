@@ -4,6 +4,9 @@ FROM rust:1.86-slim-bookworm AS builder
 
 RUN apt update && apt install -y protobuf-compiler
 
+# Install required dependencies, including OpenSSL development libraries
+RUN apt update && apt install -y protobuf-compiler libssl-dev pkg-config libpq-dev
+
 WORKDIR /usr/src/rsky
 COPY . .
 
@@ -12,7 +15,7 @@ RUN cargo build --package rsky-pds
 
 FROM debian:bookworm-slim AS runtime
 
-RUN apt update && apt install -y libpq-dev ca-certificates && update-ca-certificates
+RUN apt update && apt install -y libpq-dev ca-certificates libssl-dev libpq-dev && update-ca-certificates
 
 WORKDIR /usr/src/rsky
 COPY --from=builder /usr/src/rsky/target/debug/rsky-pds rsky-pds
