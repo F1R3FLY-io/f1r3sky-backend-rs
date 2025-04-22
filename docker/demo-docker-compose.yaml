@@ -1,6 +1,6 @@
 services:
   firesky-frontend:
-    image: firesky-frontend:latest
+    image: f1r3flyindustries/firesky-frontend
     ports:
       - 8100:8100
     command: /usr/bin/bskyweb serve
@@ -20,7 +20,7 @@ services:
       - /data
 
   firesky-ts:
-    image: firesky-ts:latest
+    image: f1r3flyindustries/firesky-ts
     environment:
       PGPORT: 5432
       PGHOST: postgres-ts-backend
@@ -61,7 +61,7 @@ services:
     command: server /data --console-address ":9001"
 
   pds-1:
-    image: firesky-rs:latest
+    image: f1r3flyindustries/firesky-rs
     ports:
       - 2583:2583
     env_file:
@@ -93,7 +93,7 @@ services:
       - minio
 
   pds-2:
-    image: firesky-rs:latest
+    image: f1r3flyindustries/firesky-rs
     ports:
       - 2683:2683
     env_file:
@@ -125,11 +125,11 @@ services:
       - minio
 
   firefly:
-    image: firefly-sky:latest
+    image: f1r3flyindustries/firefly-sky
     command: run -s --validator-private-key=6a786ec387aff99fcce1bd6faa35916bfad3686d5c98e90a89f77670f535607c --host firefly --no-upnp --allow-private-addresses --synchrony-constraint-threshold=0.0 --approve-duration 10seconds --approve-interval 10seconds --protocol-port 40400 --discovery-port 40404
 
   events-init:
-    image: events-sync:latest
+    image: f1r3flyindustries/events-sync
     depends_on:
       firefly:
         condition: service_healthy
@@ -142,7 +142,7 @@ services:
       - init
 
   events-listen:
-    image: events-sync:latest
+    image: f1r3flyindustries/events-sync
     depends_on:
       firefly:
         condition: service_healthy
@@ -160,7 +160,7 @@ services:
       - --extra-sources=ws://pds-2:2683/xrpc/com.atproto.sync.subscribeRepos
 
   events-push:
-    image: events-sync:latest
+    image: f1r3flyindustries/events-sync
     depends_on:
       firefly:
         condition: service_healthy
