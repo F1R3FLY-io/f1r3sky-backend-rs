@@ -4,12 +4,11 @@ use std::pin::Pin;
 use std::time::Duration;
 
 use anyhow::Context;
-use base64::prelude::BASE64_STANDARD;
 use base64::Engine;
+use base64::prelude::BASE64_STANDARD;
 use clap::{Parser, Subcommand};
 use futures::stream::select_all;
-use futures::{future, FutureExt, SinkExt, Stream, StreamExt, TryStreamExt};
-use secp256k1::SecretKey;
+use futures::{FutureExt, SinkExt, Stream, StreamExt, TryStreamExt, future};
 use serde::{Deserialize, Serialize};
 use tokio::select;
 use tokio::signal::ctrl_c;
@@ -85,16 +84,10 @@ enum Commands {
 async fn main() -> anyhow::Result<()> {
     let args = Args::parse();
 
-    let wallet_key = hex::decode(args.wallet_key)
-        .as_deref()
-        .map(SecretKey::from_slice)
-        .unwrap()
-        .unwrap();
-
     let mut client = firefly_api::Client::new(
-        wallet_key,
-        args.deploy_service_url,
-        args.propose_service_url,
+        &args.wallet_key,
+        &args.deploy_service_url,
+        &args.propose_service_url,
     )
     .await
     .context("failed to create firefly client")?;

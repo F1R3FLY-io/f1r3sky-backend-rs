@@ -1,9 +1,12 @@
-FROM rust:1.85-slim-bookworm AS builder
+FROM rust:1.86-slim-bookworm AS builder
 WORKDIR /app
+COPY Cargo.toml cargo.main
 RUN apt-get update && \
     apt-get install -y pkg-config libssl-dev protobuf-compiler && \
     apt clean && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/*; \
+    sed "s|^members\ *=\ *\[.*\]|members = \[\"firefly-api\", \"firefly-state-sync\"]|" < cargo.main > Cargo.toml
+
 COPY firefly-api firefly-api
 COPY firefly-state-sync firefly-state-sync
 COPY protobuf protobuf
@@ -21,6 +24,6 @@ RUN apt-get update && \
     apt-get install -y postgresql-client-${POSTGRESQL_VERSION} && \
     apt clean && \
     rm -rf /var/lib/apt/lists/*
-COPY --from=builder /app/firefly-state-sync/target/release/firefly-state-sync ./
+COPY --from=builder /app/target/release/firefly-state-sync ./
 STOPSIGNAL SIGINT
 ENTRYPOINT ["/app/firefly-state-sync"]

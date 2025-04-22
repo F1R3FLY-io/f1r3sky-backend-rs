@@ -11,7 +11,12 @@ NOTE.md
 /classifier/*.tsv
 Rocket.toml
 *.pem
+!/docker/ssl/*
 **/data/
+
+# RustRover and IntelliJ IDEA
+.idea/
+.run/
 
 # dotenv environment variable files
 .env

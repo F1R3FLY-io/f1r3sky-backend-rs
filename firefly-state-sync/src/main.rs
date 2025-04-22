@@ -3,13 +3,12 @@ use std::fmt::Display;
 use std::process::Command;
 use std::time::Duration;
 
-use anyhow::{anyhow, Context, Ok};
-use base64::prelude::BASE64_STANDARD;
+use anyhow::{Context, Ok, anyhow};
 use base64::Engine;
+use base64::prelude::BASE64_STANDARD;
 use clap::{Parser, Subcommand};
 use firefly_api::client::helpers::FromExpr;
 use firefly_api::models::rhoapi::expr::ExprInstance;
-use secp256k1::SecretKey;
 use serde::{Deserialize, Serialize};
 use tokio::select;
 use uuid::Uuid;
@@ -64,16 +63,10 @@ enum Commands {
 async fn main() -> anyhow::Result<()> {
     let args = Args::parse();
 
-    let wallet_key = hex::decode(args.wallet_key)
-        .as_deref()
-        .map(SecretKey::from_slice)
-        .unwrap()
-        .unwrap();
-
     let mut client = firefly_api::Client::new(
-        wallet_key,
-        args.deploy_service_url,
-        args.propose_service_url,
+        &args.wallet_key,
+        &args.deploy_service_url,
+        &args.propose_service_url,
     )
     .await?;
 

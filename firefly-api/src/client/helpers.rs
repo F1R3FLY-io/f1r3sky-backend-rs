@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use anyhow::{anyhow, Context};
+use anyhow::{Context, anyhow};
 use blake2::digest::consts::U32;
 use blake2::{Blake2b, Digest};
 use prost::Message as _;
