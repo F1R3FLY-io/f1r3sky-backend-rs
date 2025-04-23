@@ -10,8 +10,8 @@ pub struct FireflyProvider {
     read_node_url: String,
     deploy_service_url: String,
     propose_service_url: String,
-    wallet_address: Option<String>,
-    wallet_key: Option<String>,
+    wallet_address: String,
+    wallet_key: String,
 }
 
 impl FireflyProvider {
@@ -19,8 +19,8 @@ impl FireflyProvider {
         read_node_url: String,
         deploy_service_url: String,
         propose_service_url: String,
-        wallet_address: Option<String>,
-        wallet_key: Option<String>,
+        wallet_address: String,
+        wallet_key: String,
     ) -> Result<FireflyProvider, anyhow::Error> {
         Ok(FireflyProvider {
             read_node_url,
@@ -56,10 +56,6 @@ impl FireflyProvider {
     }
 
     pub fn firefly(&self) -> FireflyRepository {
-        FireflyRepository {
-            provider: self.clone(),
-            wallet_address: self.wallet_address.clone(),
-            wallet_key: self.wallet_key.clone(),
-        }
+        FireflyRepository::new(self.clone(), &self.wallet_address, &self.wallet_key)
     }
 }

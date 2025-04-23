@@ -12,6 +12,13 @@ pub struct FireflyRepository {
 }
 
 impl FireflyRepository {
+    pub fn new(provider: FireflyProvider, wallet_address: &str, wallet_key: &str) -> Self {
+        Self {
+            provider,
+            wallet_address: Some(wallet_address.to_string()),
+            wallet_key: Some(wallet_key.to_string()),
+        }
+    }
     pub fn get_wallet_address(&self) -> Result<String, anyhow::Error> {
         match self.wallet_address.clone() {
             Some(key) => Ok(key),
