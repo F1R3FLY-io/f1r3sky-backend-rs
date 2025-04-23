@@ -16,6 +16,7 @@ Rocket.toml
 
 # RustRover and IntelliJ IDEA
 .idea/
+.run/
 
 # dotenv environment variable files
 .env
