@@ -28,20 +28,26 @@ impl FireflyRepository {
         let wallet_address = &self.get_wallet_address()?;
         let check_balance_code = check_balance_rho(wallet_address)?;
 
-        let json: Value = self
+        // let json: Value = self
+        //     .provider
+        //     .read_client()?
+        //     .get_data(check_balance_code)
+        //     .await?;
+        // if let Some(balance) = json["expr"]
+        //     .as_array()
+        //     .and_then(|expr_array| expr_array.get(0))
+        //     .and_then(|expr| expr["ExprInt"].get("data"))
+        // {
+        //     Ok(balance.as_u64().unwrap() as u128)
+        // } else {
+        //     Err(anyhow!("Failed to extract balance value."))
+        // }
+        let data: u64 = self
             .provider
             .read_client()?
-            .get_data(check_balance_code)
+            .get_data(&check_balance_code)
             .await?;
-        if let Some(balance) = json["expr"]
-            .as_array()
-            .and_then(|expr_array| expr_array.get(0))
-            .and_then(|expr| expr["ExprInt"].get("data"))
-        {
-            Ok(balance.as_u64().unwrap() as u128)
-        } else {
-            Err(anyhow!("Failed to extract balance value."))
-        }
+        Ok(data as u128)
     }
 
     pub async fn transfer_request(

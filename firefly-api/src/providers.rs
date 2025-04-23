@@ -32,12 +32,10 @@ impl FireflyProvider {
     }
 
     pub async fn client(&self, wallet_key: &str) -> Result<Client, anyhow::Error> {
-        let wallet_key = SecretKey::from_slice(&hex::decode(wallet_key)?)?;
-
         let client = Client::new(
             wallet_key,
-            self.deploy_service_url.parse()?,
-            self.propose_service_url.parse()?,
+            &self.deploy_service_url,
+            &self.propose_service_url,
         )
         .await;
         let client = match client {
@@ -53,7 +51,7 @@ impl FireflyProvider {
     }
 
     pub fn read_client(&self) -> Result<ReadNodeClient, anyhow::Error> {
-        let read_client = ReadNodeClient::new(self.read_node_url.parse()?);
+        let read_client = ReadNodeClient::new(&self.read_node_url);
         Ok(read_client)
     }
 

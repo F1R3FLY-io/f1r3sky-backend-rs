@@ -4,8 +4,8 @@ use crate::models::casper::v1::{deploy_response, propose_response, rho_data_resp
 use crate::models::casper::{DataAtNameByBlockQuery, ProposeQuery};
 use crate::models::rhoapi::expr::ExprInstance;
 use crate::models::rhoapi::{Expr, Par};
-use anyhow::{anyhow, Context};
-use helpers::{build_deploy_msg, FromExpr};
+use anyhow::{Context, anyhow};
+use helpers::{FromExpr, build_deploy_msg};
 use secp256k1::SecretKey;
 
 pub mod helpers;
@@ -18,15 +18,16 @@ pub struct Client {
 
 impl Client {
     pub async fn new(
-        wallet_key: SecretKey,
-        deploy_service_url: String,
-        propose_service_url: String,
+        wallet_key: &str,
+        deploy_service_url: &str,
+        propose_service_url: &str,
     ) -> anyhow::Result<Self> {
-        let deploy_client = DeployServiceClient::connect(deploy_service_url)
+        let wallet_key = SecretKey::from_slice(&hex::decode(wallet_key)?)?;
+        let deploy_client = DeployServiceClient::connect(deploy_service_url.to_string())
             .await
             .context("failed to connect to deploy service")?;
 
-        let propose_client = ProposeServiceClient::connect(propose_service_url)
+        let propose_client = ProposeServiceClient::connect(propose_service_url.to_string())
             .await
             .context("failed to connect to propose service")?;
 
