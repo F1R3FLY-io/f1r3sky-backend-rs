@@ -1,0 +1,15 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="rchain up" type="docker-deploy" factoryName="docker-compose.yml" server-name="Docker">
+    <deployment type="docker-compose.yml">
+      <settings>
+        <option name="envFilePath" value="" />
+        <option name="removeVolumesOnComposeDown" value="true" />
+        <option name="commandLineOptions" value="--build" />
+        <option name="sourceFilePath" value="docker/docker-compose.yaml" />
+        <option name="upDetach" value="false" />
+        <option name="upForceRecreate" value="true" />
+      </settings>
+    </deployment>
+    <method v="2" />
+  </configuration>
+</component>

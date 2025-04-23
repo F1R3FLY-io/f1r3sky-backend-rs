@@ -1,5 +1,4 @@
 use anyhow::anyhow;
-use secp256k1::SecretKey;
 
 use crate::client::Client;
 use crate::read_node_client::ReadNodeClient;
