@@ -1,19 +1,40 @@
-const CHECK_BALANCE_TMP: &str = include_str!("check_balance.rho");
-pub fn check_balance_rho(wallet_address: &str) -> String {
-    CHECK_BALANCE_TMP.replace("WALLET_ADDRES", wallet_address)
+use sailfish::TemplateSimple;
+
+#[derive(TemplateSimple)]
+#[template(path = "check_balance.rho")]
+#[template(rm_whitespace = true)]
+struct CheckBallanceTemplate {
+    wallet_address: String,
 }
 
-const SET_TRANSFER_TMP: &str = include_str!("set_transfer.rho");
+#[derive(TemplateSimple)]
+#[template(path = "set_transfer.rho")]
+#[template(rm_whitespace = true)]
+struct SetTransferTemplate {
+    wallet_address_from: String,
+    wallet_address_to: String,
+    amount: u128,
+    description: String,
+}
+
+pub fn check_balance_rho(wallet_address: &str) -> Result<String, anyhow::Error> {
+    let ctx = CheckBallanceTemplate {
+        wallet_address: wallet_address.to_string(),
+    };
+    Ok(ctx.render_once()?)
+}
 
 pub fn set_transfer_rho(
     wallet_address_from: &str,
     wallet_address_to: &str,
     amount: u128,
     description: &str,
-) -> String {
-    SET_TRANSFER_TMP
-        .replace("WALLET_ADDRES_FROM", wallet_address_from)
-        .replace("WALLET_ADDRES_TO", wallet_address_to)
-        .replace("AMOUNT", &amount.to_string())
-        .replace("DESCRIPTION", &description)
+) -> Result<String, anyhow::Error> {
+    let ctx = SetTransferTemplate {
+        wallet_address_from: wallet_address_from.to_string(),
+        wallet_address_to: wallet_address_to.to_string(),
+        amount,
+        description: description.to_string(),
+    };
+    Ok(ctx.render_once()?)
 }

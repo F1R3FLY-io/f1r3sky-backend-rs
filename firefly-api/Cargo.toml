@@ -12,7 +12,8 @@ hex        = { version = "*" }
 prost      = { version = "0.13" }
 rand       = { version = "*" }
 reqwest    = { version = "*", features = ["json"] }
-secp256k1  = { workspace = true }                                           # must be the same version as in rsky-pds
+sailfish   = { version = "*", features = ["derive", "json", "perf-inline"] }
+secp256k1  = { workspace = true }                                            # must be the same version as in rsky-pds
 serde      = { version = "1.0", features = ["derive"] }
 serde_json = { version = "1.0" }
 tokio      = { version = "1.43", features = ["macros", "rt-multi-thread"] }
