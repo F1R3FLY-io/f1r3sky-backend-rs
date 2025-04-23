@@ -1,4 +1,4 @@
-use anyhow::anyhow;
+use anyhow::Context;
 
 use crate::client::Client;
 use crate::read_node_client::ReadNodeClient;
@@ -20,41 +20,35 @@ impl FireflyProvider {
         propose_service_url: String,
         wallet_address: String,
         wallet_key: String,
-    ) -> Result<FireflyProvider, anyhow::Error> {
-        Ok(FireflyProvider {
+    ) -> Self {
+        Self {
             read_node_url,
             deploy_service_url,
             propose_service_url,
             wallet_address,
             wallet_key,
-        })
+        }
     }
 
-    pub async fn client(&self, wallet_key: &str) -> Result<Client, anyhow::Error> {
-        let client = Client::new(
+    pub async fn client(&self, wallet_key: &str) -> anyhow::Result<Client> {
+        Client::new(
             wallet_key,
-            &self.deploy_service_url,
-            &self.propose_service_url,
+            self.deploy_service_url.clone(),
+            self.propose_service_url.clone(),
         )
-        .await;
-        let client = match client {
-            Ok(client) => client,
-            Err(err) => {
-                let error_msg = format!("Failed to create Firefly client: {err}");
-                tracing::error!("{}", &error_msg);
-                return Err(anyhow!(error_msg));
-            }
-        };
-
-        Ok(client)
+        .await
+        .context("Failed to create Firefly client")
     }
 
-    pub fn read_client(&self) -> Result<ReadNodeClient, anyhow::Error> {
-        let read_client = ReadNodeClient::new(&self.read_node_url);
-        Ok(read_client)
+    pub fn read_client(&self) -> ReadNodeClient {
+        ReadNodeClient::new(self.read_node_url.clone())
     }
 
     pub fn firefly(&self) -> FireflyRepository {
-        FireflyRepository::new(self.clone(), &self.wallet_address, &self.wallet_key)
+        FireflyRepository::new(
+            self.clone(),
+            self.wallet_address.clone(),
+            self.wallet_key.clone(),
+        )
     }
 }

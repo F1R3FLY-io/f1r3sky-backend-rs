@@ -1,7 +1,8 @@
-use crate::apis::ApiError;
 use firefly_api::providers::FireflyProvider;
-use rocket::serde::json::Json;
 use rocket::State;
+use rocket::serde::json::Json;
+
+use crate::apis::ApiError;
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct TransferRequest {
