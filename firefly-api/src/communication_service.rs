@@ -1,15 +1,15 @@
 use std::marker::PhantomData;
 
-use base64::prelude::BASE64_STANDARD;
 use base64::Engine;
+use base64::prelude::BASE64_STANDARD;
 use serde::Deserialize;
 
+use crate::models::casper::UpdateNotification;
+use crate::models::casper::v1::UpdateNotificationResponse;
 use crate::models::casper::v1::external_communication_service_server::{
     ExternalCommunicationService,
     ExternalCommunicationServiceServer,
 };
-use crate::models::casper::v1::UpdateNotificationResponse;
-use crate::models::casper::UpdateNotification;
 
 pub struct CommunicationService<T, F> {
     _phantom: PhantomData<T>,

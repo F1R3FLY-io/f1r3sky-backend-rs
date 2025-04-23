@@ -1,7 +1,8 @@
-use crate::contracts::{check_balance_rho, set_transfer_rho};
-use crate::providers::FireflyProvider;
 use anyhow::anyhow;
 use serde_json::Value;
+
+use crate::contracts::{check_balance_rho, set_transfer_rho};
+use crate::providers::FireflyProvider;
 
 #[derive(Debug, Clone)]
 pub struct FireflyRepository {

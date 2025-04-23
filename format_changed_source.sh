@@ -8,7 +8,7 @@ if [ -n "$STAGED_RS_FILES" ]; then
   echo "Formatting staged Rust files by $RUST_CMD..."
   for file in $STAGED_RS_FILES; do
     echo "Formatting Rust $file..."
-    rustfmt --style-edition 2024 "$file"
+    rustup run nightly rustfmt "$file"
     git add "$file"
   done
 fi
