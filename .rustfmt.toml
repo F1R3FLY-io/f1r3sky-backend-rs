@@ -1,4 +1,6 @@
+edition             = "2024"
 group_imports       = "StdExternalCrate"
 imports_granularity = "Module"
 imports_layout      = "HorizontalVertical"
+style_edition       = "2024"
 unstable_features   = true

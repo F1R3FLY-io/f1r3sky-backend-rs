@@ -22,6 +22,7 @@ use rsky_common::env::env_list;
 use rsky_identity::types::{DidCache, IdentityResolverOpts};
 use rsky_identity::IdResolver;
 use rsky_pds::account_manager::AccountManager;
+use rsky_pds::apis::firefly::providers::get_firefly_provider;
 use rsky_pds::apis::*;
 use rsky_pds::config::env_to_cfg;
 use rsky_pds::crawlers::Crawlers;
@@ -29,6 +30,7 @@ use rsky_pds::db::establish_connection;
 use rsky_pds::db::DbConn;
 use rsky_pds::read_after_write::viewer::{LocalViewer, LocalViewerCreatorParams};
 use rsky_pds::sequencer::Sequencer;
+use rsky_pds::wallet::WalletService;
 use rsky_pds::well_known::well_known;
 use rsky_pds::{
     SharedATPAgent, SharedIdResolver, SharedLocalViewer, SharedSequencer, APP_USER_AGENT,
@@ -229,7 +231,20 @@ async fn rocket() -> _ {
 
     let shield = Shield::default().enable(NoSniff::Enable);
 
+    let wallet_service = WalletService {};
+    let firefly_provider = get_firefly_provider().unwrap();
+
     rocket::custom(figment)
+        .mount(
+            "/api/wallet/",
+            routes![
+                firefly::create_transfer_request::create_transfer_request,
+                firefly::fulfill_transfer_request::fulfill_transfer_request,
+                firefly::get_transfer_request::get_transfer_request,
+                firefly::get_wallet_state_and_history::get_wallet_state_and_history,
+                firefly::transfer::transfer,
+            ]
+        )
         .mount(
             "/",
             routes![
@@ -324,4 +339,6 @@ async fn rocket() -> _ {
         .manage(cfg)
         .manage(local_viewer)
         .manage(app_view_agent)
+        .manage(wallet_service)
+        .manage(firefly_provider)
 }

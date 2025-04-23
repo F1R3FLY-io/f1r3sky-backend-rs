@@ -1,5 +1,5 @@
-use anyhow::{anyhow, Context};
-use helpers::{build_deploy_msg, FromExpr};
+use anyhow::{Context, anyhow};
+use helpers::{FromExpr, build_deploy_msg};
 use secp256k1::SecretKey;
 
 use crate::models::casper::v1::deploy_service_client::DeployServiceClient;
@@ -19,10 +19,11 @@ pub struct Client {
 
 impl Client {
     pub async fn new(
-        wallet_key: SecretKey,
+        wallet_key: &str,
         deploy_service_url: String,
         propose_service_url: String,
     ) -> anyhow::Result<Self> {
+        let wallet_key = SecretKey::from_slice(&hex::decode(wallet_key)?)?;
         let deploy_client = DeployServiceClient::connect(deploy_service_url)
             .await
             .context("failed to connect to deploy service")?;
@@ -38,25 +39,31 @@ impl Client {
         })
     }
 
-    pub async fn full_deploy(&mut self, code: String) -> anyhow::Result<String> {
+    async fn deploy(&mut self, code: String) -> anyhow::Result<String> {
         let msg = build_deploy_msg(&self.wallet_key, code);
 
-        let resp = self
+        let deploy_response = self
             .deploy_client
             .do_deploy(msg)
             .await
             .context("do_deploy grpc error")?
-            .into_inner()
+            .into_inner();
+
+        let resp_message = deploy_response
             .message
             .context("missing do_deploy responce")?;
 
-        match resp {
-            deploy_response::Message::Result(_) => (),
+        let message = match resp_message {
+            deploy_response::Message::Result(message) => message,
             deploy_response::Message::Error(err) => {
-                return Err(anyhow!("do_deploy error: {err:?}"))
+                return Err(anyhow!("do_deploy error: {err:?}"));
             }
-        }
+        };
 
+        Ok(message)
+    }
+
+    async fn propose(&mut self) -> anyhow::Result<String> {
         let resp = self
             .propose_client
             .propose(ProposeQuery { is_async: false })
@@ -76,6 +83,11 @@ impl Client {
             .and_then(|block_hash| block_hash.strip_suffix(" created and added."))
             .map(Into::into)
             .context("failed to extract block hash")
+    }
+
+    pub async fn full_deploy(&mut self, code: String) -> anyhow::Result<String> {
+        self.deploy(code).await.context("deploy error")?;
+        self.propose().await.context("propose error")
     }
 
     pub async fn get_channel_value<T>(&mut self, hash: String, channel: String) -> anyhow::Result<T>
@@ -103,7 +115,7 @@ impl Client {
         let payload = match resp {
             rho_data_response::Message::Payload(payload) => payload,
             rho_data_response::Message::Error(err) => {
-                return Err(anyhow!("get_data_at_name error: {err:?}"))
+                return Err(anyhow!("get_data_at_name error: {err:?}"));
             }
         };
 
