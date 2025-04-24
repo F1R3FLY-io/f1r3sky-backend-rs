@@ -4,9 +4,9 @@ use chrono::{DateTime, Utc};
 /// Represents a transaction with timestamp, name, and arguments
 #[derive(Debug)]
 pub struct Transaction {
-    date_time: DateTime<Utc>,
-    name: String,
-    arguments: Vec<String>,
+    pub date_time: DateTime<Utc>,
+    pub name: String,
+    pub arguments: Vec<String>,
 }
 
 impl Transaction {
