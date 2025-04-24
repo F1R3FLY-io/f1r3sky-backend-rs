@@ -3,9 +3,11 @@ use anyhow::anyhow;
 use crate::client::Client;
 use crate::read_node_client::ReadNodeClient;
 use crate::repositories::FireflyRepository;
+use crate::write_node_client::BlocksClient;
 
 #[derive(Debug, Clone)]
 pub struct FireflyProvider {
+    write_node_url: String,
     read_node_url: String,
     deploy_service_url: String,
     propose_service_url: String,
@@ -15,6 +17,7 @@ pub struct FireflyProvider {
 
 impl FireflyProvider {
     pub fn new(
+        write_node_url: String,
         read_node_url: String,
         deploy_service_url: String,
         propose_service_url: String,
@@ -22,6 +25,7 @@ impl FireflyProvider {
         wallet_key: String,
     ) -> Result<FireflyProvider, anyhow::Error> {
         Ok(FireflyProvider {
+            write_node_url,
             read_node_url,
             deploy_service_url,
             propose_service_url,
@@ -52,6 +56,11 @@ impl FireflyProvider {
     pub fn read_client(&self) -> Result<ReadNodeClient, anyhow::Error> {
         let read_client = ReadNodeClient::new(&self.read_node_url);
         Ok(read_client)
+    }
+
+    pub fn write_client(&self) -> Result<BlocksClient, anyhow::Error> {
+        let blocks_client = BlocksClient::new(self.write_node_url.clone());
+        Ok(blocks_client)
     }
 
     pub fn firefly(&self) -> FireflyRepository {

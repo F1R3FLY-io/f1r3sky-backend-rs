@@ -1,9 +1,13 @@
 use anyhow::anyhow;
+use chrono::{DateTime, Utc};
 use serde_json::Value;
 
 use crate::contracts::{check_balance_rho, set_transfer_rho};
 use crate::providers::FireflyProvider;
+use crate::transaction::Transaction;
 
+/// Repository for interacting with the Firefly blockchain
+/// Provides methods for wallet operations, balance checking, and transaction management
 #[derive(Debug, Clone)]
 pub struct FireflyRepository {
     pub provider: FireflyProvider,
@@ -12,6 +16,15 @@ pub struct FireflyRepository {
 }
 
 impl FireflyRepository {
+    /// Creates a new FireflyRepository instance
+    ///
+    /// # Arguments
+    /// * `provider` - The FireflyProvider instance for blockchain communication
+    /// * `wallet_address` - The wallet address string
+    /// * `wallet_key` - The wallet private key string
+    ///
+    /// # Returns
+    /// A new FireflyRepository instance
     pub fn new(provider: FireflyProvider, wallet_address: &str, wallet_key: &str) -> Self {
         Self {
             provider,
@@ -19,12 +32,22 @@ impl FireflyRepository {
             wallet_key: Some(wallet_key.to_string()),
         }
     }
+    /// Retrieves the wallet address
+    ///
+    /// # Returns
+    /// * `Ok(String)` - The wallet address if set
+    /// * `Err` - If wallet address is not set
     pub fn get_wallet_address(&self) -> Result<String, anyhow::Error> {
         match self.wallet_address.clone() {
             Some(key) => Ok(key),
             None => Err(anyhow!("Wallet address is not set.")),
         }
     }
+    /// Retrieves the wallet private key
+    ///
+    /// # Returns
+    /// * `Ok(String)` - The wallet key if set
+    /// * `Err` - If wallet key is not set
     pub fn get_wallet_key(&self) -> Result<String, anyhow::Error> {
         match self.wallet_key.clone() {
             Some(key) => Ok(key),
@@ -32,24 +55,15 @@ impl FireflyRepository {
         }
     }
 
+    /// Retrieves the current balance for the wallet
+    ///
+    /// # Returns
+    /// * `Ok(u128)` - The wallet balance
+    /// * `Err` - If the balance check fails
     pub async fn get_balance(&self) -> Result<u128, anyhow::Error> {
         let wallet_address = &self.get_wallet_address()?;
         let check_balance_code = check_balance_rho(wallet_address)?;
 
-        // let json: Value = self
-        //     .provider
-        //     .read_client()?
-        //     .get_data(check_balance_code)
-        //     .await?;
-        // if let Some(balance) = json["expr"]
-        //     .as_array()
-        //     .and_then(|expr_array| expr_array.get(0))
-        //     .and_then(|expr| expr["ExprInt"].get("data"))
-        // {
-        //     Ok(balance.as_u64().unwrap() as u128)
-        // } else {
-        //     Err(anyhow!("Failed to extract balance value."))
-        // }
         let data: u64 = self
             .provider
             .read_client()?
@@ -58,6 +72,16 @@ impl FireflyRepository {
         Ok(data as u128)
     }
 
+    /// Initiates a transfer request to another wallet
+    ///
+    /// # Arguments
+    /// * `wallet_address_to` - The recipient's wallet address
+    /// * `amount` - The amount to transfer
+    /// * `description` - Description of the transfer
+    ///
+    /// # Returns
+    /// * `Ok(String)` - The block hash of the transfer transaction
+    /// * `Err` - If the transfer fails
     pub async fn transfer_request(
         &self,
         wallet_address_to: &str,
@@ -94,5 +118,20 @@ impl FireflyRepository {
         };
 
         Ok(block_hash)
+    }
+
+    /// Retrieves all test-transactions-list for the wallet
+    ///
+    /// # Returns
+    /// * `Ok(Vec<(DateTime<Utc>, Vec<String>)>)` - List of test-transactions-list with timestamps
+    /// * `Err` - If retrieving test-transactions-list fails
+    pub async fn get_transactions(&self) -> Result<Vec<Transaction>, anyhow::Error> {
+        let client = self.provider.write_client()?;
+        let raw_transactions = client.get_transactions().await?;
+        let transactions = raw_transactions
+            .into_iter()
+            .map(|data| Transaction::new(data))
+            .collect::<Result<Vec<_>, _>>()?;
+        Ok(transactions)
     }
 }

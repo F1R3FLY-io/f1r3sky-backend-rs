@@ -1,3 +1,4 @@
+//FIREFLY_OPERATION;CHECK_BALANCE;"<%= &wallet_address %>"
 new return, rl(`rho:registry:lookup`), RevVaultCh, vaultCh in {
     rl!(`rho:rchain:revVault`, *RevVaultCh) |
     for (@(_, RevVault) <- RevVaultCh) {
