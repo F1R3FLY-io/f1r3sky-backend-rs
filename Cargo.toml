@@ -1,5 +1,5 @@
 [workspace]
-members  = ["cypher/backend", "cypher/frontend", "firefly-api", "firefly-events-sync", "firefly-state-sync", "rsky-common", "rsky-crypto", "rsky-feedgen", "rsky-firehose", "rsky-identity", "rsky-jetstream-subscriber", "rsky-labeler", "rsky-lexicon", "rsky-pds", "rsky-repo", "rsky-satnav", "rsky-syntax"]
+members = ["cypher/backend", "cypher/frontend", "firefly-api", "firefly-events-sync", "firefly-state-sync", "rsky-common", "rsky-crypto", "rsky-feedgen", "rsky-firehose", "rsky-identity", "rsky-jetstream-subscriber", "rsky-labeler", "rsky-lexicon", "rsky-pds", "rsky-repo", "rsky-satnav", "rsky-syntax", "test-transactions-list", "rsky-pds"]
 resolver = "2"
 
 [workspace.dependencies]
@@ -16,6 +16,7 @@ rsky-identity      = { path = "rsky-identity", version = "0.1.0" }
 rsky-lexicon       = { path = "rsky-lexicon", version = "0.2.7" }
 rsky-repo          = { path = "rsky-repo", version = "0.0.1" }
 rsky-syntax        = { path = "rsky-syntax", version = "0.1.0" }
+rsky-pds = { path = "rsky-pds", version = "0.1.0" }
 secp256k1          = { version = "0.28.2", features = ["global-context", "hashes", "rand", "rand-std", "serde"] }
 serde              = { version = "1.0.160", features = ["derive"] }
 serde_bytes        = "0.11.15"

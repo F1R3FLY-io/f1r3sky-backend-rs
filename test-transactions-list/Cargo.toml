@@ -1,8 +1,11 @@
 [package]
-name = "transactions"
+name = "test-transactions-list"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
 tokio = { version = "*", features = ["full"] }
 firefly-api = { workspace = true }
+rsky-pds = { workspace = true }
+dotenv = { version = "*" }
+rsky-common = { workspace = true }

@@ -120,11 +120,11 @@ impl FireflyRepository {
         Ok(block_hash)
     }
 
-    /// Retrieves all test-transactions-list for the wallet
+    /// Retrieves all transactions for the wallet
     ///
     /// # Returns
-    /// * `Ok(Vec<(DateTime<Utc>, Vec<String>)>)` - List of test-transactions-list with timestamps
-    /// * `Err` - If retrieving test-transactions-list fails
+    /// * `Ok(Vec<Transaction>)` - List of transactions associated with the wallet
+    /// * `Err` - If retrieving transactions fails
     pub async fn get_transactions(&self) -> Result<Vec<Transaction>, anyhow::Error> {
         let client = self.provider.write_client()?;
         let raw_transactions = client.get_transactions().await?;

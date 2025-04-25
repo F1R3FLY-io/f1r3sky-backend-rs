@@ -33,8 +33,9 @@ fn extract_filtered_deploys(
         .filter_map(|deploy| {
             if deploy["errored"].as_bool() == Some(false) {
                 let term = deploy["term"].as_str()?;
+
                 if term.starts_with("//FIREFLY_OPERATION") {
-                    let first_line = term.lines().next()?;
+                    let first_line = term.lines().find(|line| !line.trim().is_empty())?;
                     let mut csv_reader = ReaderBuilder::new()
                         .has_headers(false)
                         .from_reader(first_line.as_bytes());
@@ -75,7 +76,7 @@ fn extract_filtered_deploys(
 /// Vector of tuples with timestamp as Datetime and CSV value vectors, sorted by timestamp with duplicates removed
 fn process_tuples(
     tuples: Vec<(String, DateTime<Utc>, Vec<String>)>,
-) -> Vec<(DateTime<Utc>, Vec<String>)> {
+) -> Vec<(String, DateTime<Utc>, Vec<String>)> {
     let mut seen_sigs = HashSet::new();
     let mut unique_tuples: Vec<_> = tuples
         .into_iter()
@@ -86,7 +87,7 @@ fn process_tuples(
 
     unique_tuples
         .into_iter()
-        .map(|(_, datetime, csv_values)| (datetime, csv_values))
+        .map(|(id, datetime, csv_values)| (id, datetime, csv_values))
         .collect()
 }
 
@@ -197,7 +198,7 @@ impl BlocksClient {
 
     pub async fn get_transactions(
         &self,
-    ) -> Result<Vec<(DateTime<Utc>, Vec<String>)>, anyhow::Error> {
+    ) -> Result<Vec<(String, DateTime<Utc>, Vec<String>)>, anyhow::Error> {
         let mut current_hash = self.first_block_hash().await?;
         let mut result = vec![];
         let mut hash_list: Vec<String> = vec![];
