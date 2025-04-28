@@ -33,10 +33,10 @@ fn extract_filtered_deploys(
         .filter_map(|deploy| {
             if deploy["errored"].as_bool() == Some(false) {
                 let term = deploy["term"].as_str()?;
-
-                if term.starts_with("//FIREFLY_OPERATION") {
-                    let first_line = term.lines().find(|line| !line.trim().is_empty())?;
+                let first_line = term.lines().find(|line| !line.trim().is_empty())?;
+                if first_line.starts_with("//FIREFLY_OPERATION") {
                     let mut csv_reader = ReaderBuilder::new()
+                        .delimiter(b';')
                         .has_headers(false)
                         .from_reader(first_line.as_bytes());
                     let csv_values: Vec<String> = csv_reader

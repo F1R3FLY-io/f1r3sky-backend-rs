@@ -19,27 +19,20 @@ impl Transaction {
     /// # Returns
     /// * `Result<Self>` - Result containing the Transaction or an error
     pub fn new(data: (String, DateTime<Utc>, Vec<String>)) -> Result<Self> {
-        let (id, date_time, mut arguments) = data;
+        let (id, date_time, arguments) = data;
 
         if arguments.len() < 2 {
-            return Err(anyhow!("Insufficient arguments, expected at least 2"));
+            return Err(anyhow!(
+                "Operation signature requires at least 2 arguments, but got {}",
+                arguments.len()
+            ));
         }
-
-        // Remove and discard the last argument
-        arguments
-            .pop()
-            .ok_or_else(|| anyhow!("Failed to get last argument"))?;
-
-        // Get the name from the last remaining argument
-        let name = arguments
-            .pop()
-            .ok_or_else(|| anyhow!("Failed to get name argument"))?;
 
         Ok(Self {
             id,
             date_time,
-            name,
-            arguments,
+            name: arguments[1].clone(),
+            arguments: arguments[2..].to_vec(),
         })
     }
 }
