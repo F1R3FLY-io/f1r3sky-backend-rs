@@ -1,8 +1,9 @@
 use anyhow::{Result, anyhow};
 use chrono::{DateTime, Utc};
+use serde::Serialize;
 
 /// Represents a transaction with timestamp, name, and arguments
-#[derive(Debug, Clone)]
+#[derive(Debug, Serialize)]
 pub struct Transaction {
     pub id: String,
     pub date_time: DateTime<Utc>,
