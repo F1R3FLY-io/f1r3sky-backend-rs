@@ -40,7 +40,7 @@ impl Client {
     }
 
     pub async fn deploy(&mut self, code: String) -> anyhow::Result<String> {
-        let msg = build_deploy_msg(&self.wallet_key, code);
+        let msg = build_deploy_msg(&self.wallet_key, code, chrono::Utc::now());
 
         let deply_response = self
             .deploy_client

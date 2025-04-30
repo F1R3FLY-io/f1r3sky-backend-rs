@@ -3,16 +3,22 @@ use std::collections::HashMap;
 use anyhow::{Context, anyhow};
 use blake2::digest::consts::U32;
 use blake2::{Blake2b, Digest};
+use chrono::{DateTime, Utc};
 use prost::Message as _;
 use secp256k1::{Message, Secp256k1, SecretKey};
 
 use crate::models::casper::DeployDataProto;
 use crate::models::rhoapi::expr::ExprInstance;
 
-pub fn build_deploy_msg(key: &SecretKey, code: String) -> DeployDataProto {
+pub fn build_deploy_msg(
+    key: &SecretKey,
+    code: String,
+    date_time: DateTime<Utc>,
+) -> DeployDataProto {
+    let timestamp = date_time.timestamp_millis();
     let mut msg = DeployDataProto {
         term: code,
-        timestamp: 0,
+        timestamp,
         phlo_price: 1,
         phlo_limit: 500000,
         valid_after_block_number: 0,
