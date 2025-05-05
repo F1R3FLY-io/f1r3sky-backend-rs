@@ -1,10 +1,40 @@
 use std::collections::HashSet;
 
-use anyhow::{Context, anyhow};
-use chrono::{DateTime, NaiveDateTime, Utc};
+use anyhow::{anyhow, Context};
+use chrono::{DateTime, Utc};
 use csv::ReaderBuilder;
 use reqwest::Client as HttpClient;
 use serde_json::Value;
+
+/// Converts a Unix timestamp in milliseconds to a `DateTime<Utc>`.
+///
+/// # Parameters
+/// - `unix_timestamp_ms`: An `i64` representing the Unix timestamp in milliseconds.
+///
+/// # Returns
+/// - `anyhow::Result<DateTime<Utc>>`: A `Result` containing the corresponding `DateTime<Utc>`
+///   if the conversion is successful, or an `anyhow::Error` if the conversion fails.
+///
+/// # Errors
+/// - Returns an error if the provided timestamp cannot be converted into a valid `DateTime<Utc>`.
+///
+/// # Example
+/// ```
+/// use chrono::Utc;
+/// let unix_timestamp_ms = 1_638_995_200_000; // Example timestamp in milliseconds
+/// let datetime = convert_unix_ms_to_datetime(unix_timestamp_ms);
+/// match datetime {
+///     Ok(dt) => println!("DateTime: {}", dt),
+///     Err(e) => eprintln!("Error: {}", e),
+/// }
+/// ```
+fn convert_unix_ms_to_datetime(unix_timestamp_ms: i64) -> anyhow::Result<DateTime<Utc>> {
+    let seconds = unix_timestamp_ms / 1000;
+    let nanoseconds = ((unix_timestamp_ms % 1000) * 1_000_000) as i32;
+
+    DateTime::from_timestamp(seconds, nanoseconds as u32)
+        .ok_or_else(|| anyhow::anyhow!("Failed to convert timestamp: {}", unix_timestamp_ms))
+}
 
 /// Extracts and filters deploy information from a vector of JSON Values.
 /// Only processes non-errored deploys that start with "//FIREFLY_OPERATION".
@@ -24,10 +54,7 @@ use serde_json::Value;
 /// 3. Parses first line as CSV
 /// 4. Extracts signature and timestamp
 /// 5. Returns tuple of (signature, timestamp, csv_values)
-fn extract_filtered_deploys(
-    deploys: Vec<Value>,
-    default_timestamp: i64,
-) -> Vec<(String, DateTime<Utc>, Vec<String>)> {
+fn extract_filtered_deploys(deploys: Vec<Value>) -> Vec<(String, DateTime<Utc>, Vec<String>)> {
     deploys
         .into_iter()
         .filter_map(|deploy| {
@@ -45,17 +72,10 @@ fn extract_filtered_deploys(
                         .and_then(|record| record.ok())
                         .map(|record| record.iter().map(|s| s.to_string()).collect())
                         .unwrap_or_default();
-                    let timestamp = deploy["timestamp"].as_i64()?;
-                    let timestamp = if timestamp == 0 {
-                        default_timestamp
-                    } else {
-                        timestamp
-                    };
-                    let naive_datetime = NaiveDateTime::from_timestamp(
-                        timestamp / 1000,
-                        ((timestamp % 1000) * 1_000_000) as u32,
-                    );
-                    let datetime: DateTime<Utc> = DateTime::from_utc(naive_datetime, Utc);
+
+                    // Usage
+                    let unix_timestamp_ms = deploy["timestamp"].as_i64()?;
+                    let datetime = convert_unix_ms_to_datetime(unix_timestamp_ms).ok()?;
                     let sig = deploy["sig"].as_str()?.to_string();
                     return Some((sig, datetime, csv_values));
                 }
@@ -80,7 +100,7 @@ fn process_tuples(
     let mut seen_sigs = HashSet::new();
     let mut unique_tuples: Vec<_> = tuples
         .into_iter()
-        .filter(|(sig, _, _)| seen_sigs.insert(sig.clone()))
+        .filter(|(sig, _, _)| seen_sigs.insert(sig.to_string()))
         .collect();
 
     unique_tuples.sort_by_key(|(_, datetime, _)| *datetime);
@@ -98,11 +118,11 @@ pub struct BlocksClient {
 }
 
 impl BlocksClient {
-    pub fn new(block_node_url: String) -> Self {
+    pub fn new(block_node_url: &str) -> Self {
         let http_client = HttpClient::new();
         Self {
             http_client,
-            block_node_url,
+            block_node_url: block_node_url.to_string(),
         }
     }
 
@@ -182,13 +202,9 @@ impl BlocksClient {
                     .collect::<Vec<_>>()
             });
 
-        let default_timestamp = response["blockInfo"]["timestamp"]
-            .as_i64()
-            .context("missing timestamp")?;
-
         let deploys = response["deploys"].as_array().context("missing deploys")?;
 
-        let filtered_deploys = extract_filtered_deploys(deploys.to_vec(), default_timestamp);
+        let filtered_deploys = extract_filtered_deploys(deploys.to_vec());
 
         Ok((parents_hash_list, filtered_deploys))
     }

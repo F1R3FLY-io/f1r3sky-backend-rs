@@ -1,5 +1,5 @@
-use anyhow::{Context, anyhow};
-use helpers::{FromExpr, build_deploy_msg};
+use anyhow::{anyhow, Context};
+use helpers::{build_deploy_msg, FromExpr};
 use secp256k1::SecretKey;
 
 use crate::models::casper::v1::deploy_service_client::DeployServiceClient;
@@ -42,14 +42,14 @@ impl Client {
     pub async fn deploy(&mut self, code: String) -> anyhow::Result<String> {
         let msg = build_deploy_msg(&self.wallet_key, code, chrono::Utc::now());
 
-        let deply_response = self
+        let deploy_response = self
             .deploy_client
             .do_deploy(msg)
             .await
             .context("do_deploy grpc error")?
             .into_inner();
 
-        let resp_message = deply_response
+        let resp_message = deploy_response
             .message
             .context("missing do_deploy responce")?;
 

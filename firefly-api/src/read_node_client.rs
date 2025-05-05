@@ -1,4 +1,4 @@
-use anyhow::{Context, anyhow};
+use anyhow::{anyhow, Context};
 use reqwest::Client as HttpClient;
 use serde_json::Value;
 
@@ -19,7 +19,7 @@ impl ReadNodeClient {
         format!("{}/api/{}", self.read_node_url, read_node_method)
     }
 
-    async fn get_value(self, code: String) -> Result<Value, anyhow::Error> {
+    async fn get_value(self, code: String) -> anyhow::Result<Value> {
         // Get the URL from the `read_node_api` function
         let url = self.read_node_api();
 
@@ -49,20 +49,17 @@ impl ReadNodeClient {
         }
     }
 
-    fn extract_data_from_response(json: &serde_json::Value) -> Option<&serde_json::Value> {
-        json["expr"]
-            .as_array()
-            .and_then(|expr_array| expr_array.get(0))
-            .and_then(|expr| expr["ExprInt"].get("data"))
+    fn extract_data_from_response(mut json: Value) -> Option<Value> {
+        json.pointer_mut("/expr/0/ExprInt/data").map(|v| v.take())
     }
 
-    pub async fn get_data<T>(self, rholang_code: &str) -> Result<T, anyhow::Error>
+    pub async fn get_data<T>(self, rholang_code: String) -> anyhow::Result<T>
     where
         T: serde::de::DeserializeOwned,
     {
-        let response_json: serde_json::Value = self.get_value(rholang_code.to_string()).await?;
+        let response_json: Value = self.get_value(rholang_code.to_string()).await?;
 
-        let data_value = Self::extract_data_from_response(&response_json)
+        let data_value = Self::extract_data_from_response(response_json)
             .ok_or_else(|| anyhow!("Failed to extract data from response structure"))?;
 
         let parsed_data: T = serde_json::from_value(data_value.clone())

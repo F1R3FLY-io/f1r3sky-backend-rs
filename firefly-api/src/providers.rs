@@ -23,15 +23,15 @@ impl FireflyProvider {
         propose_service_url: String,
         wallet_address: String,
         wallet_key: String,
-    ) -> Result<FireflyProvider, anyhow::Error> {
-        Ok(FireflyProvider {
+    ) -> Self {
+        Self {
             write_node_url,
             read_node_url,
             deploy_service_url,
             propose_service_url,
             wallet_address,
             wallet_key,
-        })
+        }
     }
 
     pub async fn client(&self, wallet_key: &str) -> Result<Client, anyhow::Error> {
@@ -59,7 +59,7 @@ impl FireflyProvider {
     }
 
     pub fn write_client(&self) -> Result<BlocksClient, anyhow::Error> {
-        let blocks_client = BlocksClient::new(self.write_node_url.clone());
+        let blocks_client = BlocksClient::new(&self.write_node_url);
         Ok(blocks_client)
     }
 

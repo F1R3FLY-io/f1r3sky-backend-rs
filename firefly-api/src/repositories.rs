@@ -9,8 +9,8 @@ use crate::transaction::Transaction;
 #[derive(Debug, Clone)]
 pub struct FireflyRepository {
     pub provider: FireflyProvider,
-    pub wallet_address: Option<String>,
-    pub wallet_key: Option<String>,
+    pub wallet_address: String,
+    pub wallet_key: String,
 }
 
 impl FireflyRepository {
@@ -26,31 +26,17 @@ impl FireflyRepository {
     pub fn new(provider: FireflyProvider, wallet_address: &str, wallet_key: &str) -> Self {
         Self {
             provider,
-            wallet_address: Some(wallet_address.to_string()),
-            wallet_key: Some(wallet_key.to_string()),
+            wallet_address: wallet_address.to_string(),
+            wallet_key: wallet_key.to_string(),
         }
     }
     /// Retrieves the wallet address
-    ///
-    /// # Returns
-    /// * `Ok(String)` - The wallet address if set
-    /// * `Err` - If wallet address is not set
-    pub fn get_wallet_address(&self) -> Result<String, anyhow::Error> {
-        match self.wallet_address.clone() {
-            Some(key) => Ok(key),
-            None => Err(anyhow!("Wallet address is not set.")),
-        }
+    pub fn get_wallet_address(&self) -> String {
+        self.wallet_address.clone()
     }
     /// Retrieves the wallet private key
-    ///
-    /// # Returns
-    /// * `Ok(String)` - The wallet key if set
-    /// * `Err` - If wallet key is not set
-    pub fn get_wallet_key(&self) -> Result<String, anyhow::Error> {
-        match self.wallet_key.clone() {
-            Some(key) => Ok(key),
-            None => Err(anyhow!("Wallet key is not set.")),
-        }
+    pub fn get_wallet_key(&self) -> String {
+        self.wallet_key.clone()
     }
 
     /// Retrieves the current balance for the wallet
@@ -58,14 +44,14 @@ impl FireflyRepository {
     /// # Returns
     /// * `Ok(u128)` - The wallet balance
     /// * `Err` - If the balance check fails
-    pub async fn get_balance(&self) -> Result<u128, anyhow::Error> {
-        let wallet_address = &self.get_wallet_address()?;
+    pub async fn get_balance(&self) -> anyhow::Result<u128> {
+        let wallet_address = &self.get_wallet_address();
         let check_balance_code = check_balance_rho(wallet_address)?;
 
         let data: u64 = self
             .provider
             .read_client()?
-            .get_data(&check_balance_code)
+            .get_data(check_balance_code)
             .await?;
         Ok(data as u128)
     }
@@ -85,14 +71,14 @@ impl FireflyRepository {
         wallet_address_to: &str,
         amount: u128,
         description: &str,
-    ) -> Result<String, anyhow::Error> {
+    ) -> anyhow::Result<String> {
         let set_transfer = set_transfer_rho(
-            &self.get_wallet_address()?,
+            &self.get_wallet_address(),
             wallet_address_to,
             amount,
             description,
         )?;
-        let wallet_key = self.get_wallet_key()?;
+        let wallet_key = self.get_wallet_key();
         let mut client = self.provider.client(&wallet_key).await?;
 
         let deploy_response = client.deploy(set_transfer).await;
@@ -123,7 +109,7 @@ impl FireflyRepository {
     /// # Returns
     /// * `Ok(Vec<Transaction>)` - List of transactions associated with the wallet
     /// * `Err` - If retrieving transactions fails
-    pub async fn get_transactions(&self) -> Result<Vec<Transaction>, anyhow::Error> {
+    pub async fn get_transactions(&self) -> anyhow::Result<Vec<Transaction>> {
         let client = self.provider.write_client()?;
         let raw_transactions = client.get_transactions().await?;
         let transactions = raw_transactions

@@ -16,6 +16,7 @@ Responce:
   "balance": 1000,
   "requests": [
     {
+      "id": "ddin2b48SD0-2d",
       "date": 123, // unix timestamp
       "amount": 1000,
       "status": "done" // "done" or "ongoing" or "cancelled"
@@ -24,6 +25,9 @@ Responce:
   "exchanges": [{}], // TODO
   "boosts": [
     {
+      "id": "ddin2b48SD0-2d",
+      "username": "foo.bar",
+      "direction": "incoming", // "incoming" or "outgoing"
       "date": 123, // unix timestamp
       "amount": 1000,
       "post": "www.firesky.com" // string or null
@@ -31,6 +35,8 @@ Responce:
   ],
   "transfers": [
     {
+      "id": "ddin2b48SD0-2d",
+      "direction": "incoming", // "incoming" or "outgoing"
       "date": 123, // unix timestamp
       "amount": 1000,
       "to_address": "1DkyAJL8Kt8O67GJNKJbdd9083Qh26jklQepA"

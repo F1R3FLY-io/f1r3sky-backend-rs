@@ -3,6 +3,7 @@ use chrono::TimeZone;
 use crate::apis::firefly::models::{
     Boost, Direction, Request, RequestStatus, Transfer, WalletStateAndHistory,
 };
+
 pub fn example_wallet_history() -> WalletStateAndHistory {
     let requests = vec![
         Request {
