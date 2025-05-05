@@ -20,15 +20,15 @@ pub struct Client {
 impl Client {
     pub async fn new(
         wallet_key: &str,
-        deploy_service_url: String,
-        propose_service_url: String,
+        deploy_service_url: &str,
+        propose_service_url: &str,
     ) -> anyhow::Result<Self> {
         let wallet_key = SecretKey::from_slice(&hex::decode(wallet_key)?)?;
-        let deploy_client = DeployServiceClient::connect(deploy_service_url)
+        let deploy_client = DeployServiceClient::connect(deploy_service_url.to_string())
             .await
             .context("failed to connect to deploy service")?;
 
-        let propose_client = ProposeServiceClient::connect(propose_service_url)
+        let propose_client = ProposeServiceClient::connect(propose_service_url.to_string())
             .await
             .context("failed to connect to propose service")?;
 
@@ -39,17 +39,17 @@ impl Client {
         })
     }
 
-    async fn deploy(&mut self, code: String) -> anyhow::Result<String> {
-        let msg = build_deploy_msg(&self.wallet_key, code);
+    pub async fn deploy(&mut self, code: String) -> anyhow::Result<String> {
+        let msg = build_deploy_msg(&self.wallet_key, code, chrono::Utc::now());
 
-        let deploy_response = self
+        let deply_response = self
             .deploy_client
             .do_deploy(msg)
             .await
             .context("do_deploy grpc error")?
             .into_inner();
 
-        let resp_message = deploy_response
+        let resp_message = deply_response
             .message
             .context("missing do_deploy responce")?;
 
@@ -63,7 +63,7 @@ impl Client {
         Ok(message)
     }
 
-    async fn propose(&mut self) -> anyhow::Result<String> {
+    pub async fn propose(&mut self) -> anyhow::Result<String> {
         let resp = self
             .propose_client
             .propose(ProposeQuery { is_async: false })
@@ -78,16 +78,18 @@ impl Client {
             propose_response::Message::Error(err) => return Err(anyhow!("propose error: {err:?}")),
         };
 
-        block_hash
+        let block_hash = block_hash
             .strip_prefix("Success! Block ")
             .and_then(|block_hash| block_hash.strip_suffix(" created and added."))
             .map(Into::into)
-            .context("failed to extract block hash")
+            .context("failed to extract block hash")?;
+        Ok(block_hash)
     }
 
     pub async fn full_deploy(&mut self, code: String) -> anyhow::Result<String> {
-        self.deploy(code).await.context("deploy error")?;
-        self.propose().await.context("propose error")
+        let _response_hash = self.deploy(code).await.context("deploy error")?;
+        let block_hash = self.propose().await.context("propose error")?;
+        Ok(block_hash)
     }
 
     pub async fn get_channel_value<T>(&mut self, hash: String, channel: String) -> anyhow::Result<T>

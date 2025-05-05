@@ -31,7 +31,7 @@ pub struct Boost {
     pub direction: Direction,
     pub date: u64,
     pub amount: u128,
-    pub post: Option<String>,
+    pub post: String,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]

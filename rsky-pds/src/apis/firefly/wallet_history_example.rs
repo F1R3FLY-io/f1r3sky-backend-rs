@@ -1,14 +1,8 @@
 use chrono::TimeZone;
 
 use crate::apis::firefly::models::{
-    Boost,
-    Direction,
-    Request,
-    RequestStatus,
-    Transfer,
-    WalletStateAndHistory,
+    Boost, Direction, Request, RequestStatus, Transfer, WalletStateAndHistory,
 };
-
 pub fn example_wallet_history() -> WalletStateAndHistory {
     let requests = vec![
         Request {
@@ -130,7 +124,7 @@ pub fn example_wallet_history() -> WalletStateAndHistory {
                 .timestamp_millis() as _,
             amount: 3000000000000000,
             username: "foo.test".to_string(),
-            post: Some("3lmeun6nxfc27".to_string()),
+            post: "3lmeun6nxfc27".to_string(),
         },
         Boost {
             id: "darggxc45".to_string(),
@@ -141,7 +135,7 @@ pub fn example_wallet_history() -> WalletStateAndHistory {
                 .timestamp_millis() as _,
             amount: 1000000000000000,
             username: "SomeUser33".to_string(),
-            post: Some("1234412".to_string()),
+            post: "1234412".to_string(),
         },
     ];
     let transfers = vec![

@@ -1,27 +1,28 @@
 [workspace]
-members = ["rsky-common", "rsky-crypto", "rsky-feedgen", "rsky-firehose", "rsky-identity", "rsky-labeler", "rsky-lexicon", "rsky-pds", "rsky-syntax", "rsky-jetstream-subscriber", "rsky-repo", "cypher/backend", "cypher/frontend", "rsky-satnav", "firefly-api", "firefly-events-sync", "firefly-state-sync"]
+members  = ["cypher/backend", "cypher/frontend", "firefly-api", "firefly-events-sync", "firefly-state-sync", "rsky-common", "rsky-crypto", "rsky-feedgen", "rsky-firehose", "rsky-identity", "rsky-jetstream-subscriber", "rsky-labeler", "rsky-lexicon", "rsky-pds", "rsky-pds", "rsky-repo", "rsky-satnav", "rsky-syntax", "test-transactions-list"]
 resolver = "2"
 
 [workspace.dependencies]
-cargo = { version = "0.84.0",features = ["vendored-openssl"] }
-serde = { version = "1.0.160", features = ["derive"] }
-serde_derive = "^1.0"
-serde_ipld_dagcbor = {  version = "0.6.1" ,features = ["codec"]}
-lexicon_cid = { package = "cid", version = "0.10.1", features = ["serde-codec"] }
-libipld = "0.16.0"
-serde_cbor = "0.11.2"
-serde_bytes = "0.11.15"
-tokio = { version = "1.28.2",features = ["full"] }
-sha2 = "0.10.8"
-rand = "0.8.5"
-rand_core = "0.6.4"
-secp256k1 = { version = "0.28.2", features = ["global-context", "serde", "rand", "hashes","rand-std"] }
-serde_json = { version = "1.0.96",features = ["preserve_order"] }
-rsky-lexicon = {path = "rsky-lexicon", version = "0.2.7"}
-rsky-identity = {path = "rsky-identity", version = "0.1.0"}
-rsky-crypto = {path = "rsky-crypto", version = "0.1.1"}
-rsky-syntax = {path = "rsky-syntax", version = "0.1.0"}
-rsky-common = {path = "rsky-common", version = "0.1.1"}
-rsky-repo = {path = "rsky-repo", version = "0.0.1"}
-rsky-firehose = {path = "rsky-firehose", version = "0.2.0"}
-firefly-api = { path = "firefly-api", version = "0.1.0" }
+cargo              = { version = "0.84.0", features = ["vendored-openssl"] }
+firefly-api        = { path = "firefly-api", version = "0.1.0" }
+lexicon_cid        = { package = "cid", version = "0.10.1", features = ["serde-codec"] }
+libipld            = "0.16.0"
+rand               = "0.8.5"
+rand_core          = "0.6.4"
+rsky-common        = { path = "rsky-common", version = "0.1.1" }
+rsky-crypto        = { path = "rsky-crypto", version = "0.1.1" }
+rsky-firehose      = { path = "rsky-firehose", version = "0.2.0" }
+rsky-identity      = { path = "rsky-identity", version = "0.1.0" }
+rsky-lexicon       = { path = "rsky-lexicon", version = "0.2.7" }
+rsky-pds           = { path = "rsky-pds", version = "0.1.0" }
+rsky-repo          = { path = "rsky-repo", version = "0.0.1" }
+rsky-syntax        = { path = "rsky-syntax", version = "0.1.0" }
+secp256k1          = { version = "0.28.2", features = ["global-context", "hashes", "rand", "rand-std", "serde"] }
+serde              = { version = "1.0.160", features = ["derive"] }
+serde_bytes        = "0.11.15"
+serde_cbor         = "0.11.2"
+serde_derive       = "^1.0"
+serde_ipld_dagcbor = { version = "0.6.1", features = ["codec"] }
+serde_json         = { version = "1.0.96", features = ["preserve_order"] }
+sha2               = "0.10.8"
+tokio              = { version = "1.28.2", features = ["full"] }
