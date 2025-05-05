@@ -149,9 +149,6 @@ impl BlocksClient {
     }
 
     async fn first_block_hash(&self) -> Result<String, anyhow::Error> {
-        // Get the URL from the `read_node_api` function
-        let url = self.api_url("blocks");
-
         let response = self.api_get("blocks", None, None).await?;
 
         Ok(response
