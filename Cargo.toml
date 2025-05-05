@@ -1,5 +1,5 @@
 [workspace]
-members  = ["cypher/backend", "cypher/frontend", "firefly-api", "firefly-events-sync", "firefly-state-sync", "rsky-common", "rsky-crypto", "rsky-feedgen", "rsky-firehose", "rsky-identity", "rsky-jetstream-subscriber", "rsky-labeler", "rsky-lexicon", "rsky-pds", "rsky-pds", "rsky-repo", "rsky-satnav", "rsky-syntax", "test-transactions-list"]
+members  = ["cypher/backend", "cypher/frontend", "firefly-api", "firefly-events-sync", "firefly-state-sync", "rsky-common", "rsky-crypto", "rsky-feedgen", "rsky-firehose", "rsky-identity", "rsky-jetstream-subscriber", "rsky-labeler", "rsky-lexicon", "rsky-pds", "rsky-pds", "rsky-repo", "rsky-satnav", "rsky-syntax"]
 resolver = "2"
 
 [workspace.dependencies]
