@@ -24,14 +24,13 @@ pub mod casper {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct TransferResponse {
-    pub sig: String,
+pub struct TransferResult {
     pub cost: u64,
     pub errored: bool,
     pub system_deploy_error: Option<String>,
 }
 
-impl TransferResponse {
+impl TransferResult {
     pub fn new(block_data: Value) -> anyhow::Result<Self> {
         let sig = block_data
             .get("sig")
@@ -54,7 +53,6 @@ impl TransferResponse {
             None => None,
         };
         Ok(Self {
-            sig,
             cost,
             errored,
             system_deploy_error,

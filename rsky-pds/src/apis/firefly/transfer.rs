@@ -1,4 +1,4 @@
-use firefly_api::models::TransferResponse;
+use firefly_api::models::TransferResult;
 use firefly_api::providers::FireflyProvider;
 use rocket::State;
 use rocket::serde::json::Json;
@@ -11,6 +11,11 @@ pub struct TransferRequest {
     amount: U128Stringified,
     to_address: String,
     description: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct TransferResponse {
+    cost: String,
 }
 
 #[tracing::instrument(skip_all)]
@@ -28,9 +33,17 @@ pub async fn transfer(
         ..
     } = body.into_inner();
     let client = provider.firefly();
-    let response_block: TransferResponse = client
+    let response_block = client
         .transfer_request(&to_address, amount, description)
-        .await?;
-
-    Ok(Json(response_block))
+        .await
+        .map_err(|e| ApiError::InvalidRequest(e.to_string()))?;
+    let system_deploy_error = response_block.system_deploy_error.map(|s| s.to_string());
+    if response_block.errored {
+        return Err(ApiError::InvalidRequest(
+            system_deploy_error.unwrap_or_else(|| "Unknown error".to_string()),
+        ));
+    }
+    Ok(Json(TransferResponse {
+        cost: response_block.cost.to_string(),
+    }))
 }

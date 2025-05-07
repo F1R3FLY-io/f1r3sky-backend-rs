@@ -48,6 +48,7 @@ pub async fn get_wallet_state_and_history(
             date,
             amount: amount.into(),
             to_address,
+            cost: transaction.cost,
         };
         transfers.push(transfer);
     }

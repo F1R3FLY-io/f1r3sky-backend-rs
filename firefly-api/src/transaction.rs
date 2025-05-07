@@ -9,6 +9,7 @@ pub struct Transaction {
     pub date_time: DateTime<Utc>,
     pub name: String,
     pub arguments: Vec<String>,
+    pub cost: String,
 }
 
 impl Transaction {
@@ -19,8 +20,8 @@ impl Transaction {
     ///
     /// # Returns
     /// * `Result<Self>` - Result containing the Transaction or an error
-    pub fn new(data: (String, DateTime<Utc>, Vec<String>)) -> Result<Self> {
-        let (id, date_time, arguments) = data;
+    pub fn new(data: (String, DateTime<Utc>, Vec<String>, String)) -> Result<Self> {
+        let (id, date_time, arguments, cost) = data;
 
         if arguments.len() < 2 {
             return Err(anyhow!(
@@ -34,6 +35,7 @@ impl Transaction {
             date_time,
             name: arguments[1].clone(),
             arguments: arguments[2..].to_vec(),
+            cost,
         })
     }
 }

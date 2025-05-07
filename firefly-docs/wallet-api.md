@@ -17,29 +17,40 @@ Responce:
   "requests": [
     {
       "id": "ddin2b48SD0-2d",
-      "date": 123, // unix timestamp
+      "date": 123,
+      // unix timestamp
       "amount": 1000,
-      "status": "done" // "done" or "ongoing" or "cancelled"
+      "status": "done"
+      // "done" or "ongoing" or "cancelled"
     }
   ],
-  "exchanges": [{}], // TODO
+  "exchanges": [
+    {}
+  ],
+  // TODO
   "boosts": [
     {
       "id": "ddin2b48SD0-2d",
       "username": "foo.bar",
-      "direction": "incoming", // "incoming" or "outgoing"
-      "date": 123, // unix timestamp
+      "direction": "incoming",
+      // "incoming" or "outgoing"
+      "date": 123,
+      // unix timestamp
       "amount": 1000,
-      "post": "www.firesky.com" // string or null
+      "post": "www.firesky.com"
+      // string or null
     }
   ],
   "transfers": [
     {
       "id": "ddin2b48SD0-2d",
-      "direction": "incoming", // "incoming" or "outgoing"
-      "date": 123, // unix timestamp
-      "amount": 1000,
-      "to_address": "1DkyAJL8Kt8O67GJNKJbdd9083Qh26jklQepA"
+      "direction": "incoming",
+      // "incoming" or "outgoing"
+      "date": 123,
+      // unix timestamp
+      "amount": "1000",
+      "to_address": "1DkyAJL8Kt8O67GJNKJbdd9083Qh26jklQepA",
+      "cost": "666"
     }
   ]
 }
@@ -113,3 +124,9 @@ POST `/api/wallet/transfer`
 Responce:
 
 200 OK
+
+```json
+{
+  "cost": "666"
+}
+```

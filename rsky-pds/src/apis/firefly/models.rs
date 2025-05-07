@@ -73,6 +73,7 @@ pub struct Transfer {
     pub date: u64,
     pub amount: U128Stringified,
     pub to_address: String,
+    pub cost: String,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]

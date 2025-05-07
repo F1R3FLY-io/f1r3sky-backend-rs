@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 use crate::contracts::{check_balance_rho, set_transfer_rho};
-use crate::models::TransferResponse;
+use crate::models::TransferResult;
 use crate::providers::FireflyProvider;
 use crate::transaction::Transaction;
 
@@ -74,7 +74,7 @@ impl FireflyRepository {
         wallet_address_to: &str,
         amount: u128,
         description: Option<String>,
-    ) -> anyhow::Result<TransferResponse> {
+    ) -> anyhow::Result<TransferResult> {
         let set_transfer = set_transfer_rho(
             &self.get_wallet_address(),
             wallet_address_to,
@@ -107,7 +107,7 @@ impl FireflyRepository {
 
         let response_block = block_client.get_deploy_results(&block_hash, &sid).await?;
 
-        TransferResponse::new(response_block)
+        TransferResult::new(response_block)
     }
 
     /// Retrieves all transactions for the wallet

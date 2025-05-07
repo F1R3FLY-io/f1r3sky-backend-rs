@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use anyhow::{anyhow, Context};
+use anyhow::{Context, anyhow};
 use chrono::{DateTime, Utc};
 use csv::ReaderBuilder;
 use reqwest::Client as HttpClient;
@@ -54,7 +54,7 @@ fn convert_unix_ms_to_datetime(unix_timestamp_ms: i64) -> anyhow::Result<DateTim
 /// 3. Parses first line as CSV
 /// 4. Extracts signature and timestamp
 /// 5. Returns tuple of (signature, timestamp, csv_values)
-fn extract_filtered_deploys(deploys: Vec<Value>) -> Vec<(String, DateTime<Utc>, Vec<String>)> {
+fn extract_filtered_deploys(deploys: Vec<Value>) -> Vec<(String, DateTime<Utc>, Vec<String>, u64)> {
     deploys
         .into_iter()
         .filter_map(|deploy| {
@@ -77,7 +77,8 @@ fn extract_filtered_deploys(deploys: Vec<Value>) -> Vec<(String, DateTime<Utc>, 
                     let unix_timestamp_ms = deploy["timestamp"].as_i64()?;
                     let datetime = convert_unix_ms_to_datetime(unix_timestamp_ms).ok()?;
                     let sig = deploy["sig"].as_str()?.to_string();
-                    return Some((sig, datetime, csv_values));
+                    let cost = deploy["cost"].as_u64().unwrap_or(0);
+                    return Some((sig, datetime, csv_values, cost));
                 }
             }
             None
@@ -95,19 +96,19 @@ fn extract_filtered_deploys(deploys: Vec<Value>) -> Vec<(String, DateTime<Utc>, 
 /// # Returns
 /// Vector of tuples with timestamp as Datetime and CSV value vectors, sorted by timestamp with duplicates removed
 fn process_tuples(
-    tuples: Vec<(String, DateTime<Utc>, Vec<String>)>,
-) -> Vec<(String, DateTime<Utc>, Vec<String>)> {
+    tuples: Vec<(String, DateTime<Utc>, Vec<String>, u64)>,
+) -> Vec<(String, DateTime<Utc>, Vec<String>, String)> {
     let mut seen_sigs = HashSet::new();
     let mut unique_tuples: Vec<_> = tuples
         .into_iter()
-        .filter(|(sig, _, _)| seen_sigs.insert(sig.to_string()))
+        .filter(|(sig, _, _, _)| seen_sigs.insert(sig.to_string()))
         .collect();
 
-    unique_tuples.sort_by_key(|(_, datetime, _)| *datetime);
+    unique_tuples.sort_by_key(|(_, datetime, _, _)| *datetime);
 
     unique_tuples
         .into_iter()
-        .map(|(id, datetime, csv_values)| (id, datetime, csv_values))
+        .map(|(id, datetime, csv_values, cost)| (id, datetime, csv_values, cost.to_string()))
         .collect()
 }
 
@@ -185,7 +186,7 @@ impl BlocksClient {
     ) -> Result<
         (
             Option<Vec<String>>,
-            Vec<(String, DateTime<Utc>, Vec<String>)>,
+            Vec<(String, DateTime<Utc>, Vec<String>, u64)>,
         ),
         anyhow::Error,
     > {
@@ -228,7 +229,7 @@ impl BlocksClient {
 
     pub async fn get_transactions(
         &self,
-    ) -> Result<Vec<(String, DateTime<Utc>, Vec<String>)>, anyhow::Error> {
+    ) -> Result<Vec<(String, DateTime<Utc>, Vec<String>, String)>, anyhow::Error> {
         let mut current_hash = self.first_block_hash().await?;
         let mut result = vec![];
         let mut hash_list: Vec<String> = vec![];
