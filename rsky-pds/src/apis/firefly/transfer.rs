@@ -1,14 +1,16 @@
-use crate::apis::ApiError;
 use firefly_api::models::TransferResponse;
 use firefly_api::providers::FireflyProvider;
-use rocket::serde::json::Json;
 use rocket::State;
+use rocket::serde::json::Json;
 
-#[derive(Debug, Deserialize, Serialize, Clone)]
+use super::models::U128Stringified;
+use crate::apis::ApiError;
+
+#[derive(Debug, Clone, Deserialize)]
 pub struct TransferRequest {
-    amount: u128,
+    amount: U128Stringified,
     to_address: String,
-    description: String,
+    description: Option<String>,
 }
 
 #[tracing::instrument(skip_all)]
@@ -20,14 +22,14 @@ pub async fn transfer(
     // TODO: auth should be turned on when we'll solve storage parameters per user
 ) -> Result<Json<TransferResponse>, ApiError> {
     let TransferRequest {
-        amount,
+        amount: U128Stringified(amount),
         to_address,
         description,
         ..
     } = body.into_inner();
     let client = provider.firefly();
     let response_block: TransferResponse = client
-        .transfer_request(&to_address, amount, &description)
+        .transfer_request(&to_address, amount, description)
         .await?;
 
     Ok(Json(response_block))

@@ -1,10 +1,11 @@
+use anyhow::anyhow;
+use serde::{Deserialize, Serialize};
+use serde_json::Value;
+
 use crate::contracts::{check_balance_rho, set_transfer_rho};
 use crate::models::TransferResponse;
 use crate::providers::FireflyProvider;
 use crate::transaction::Transaction;
-use anyhow::anyhow;
-use serde::{Deserialize, Serialize};
-use serde_json::Value;
 
 /// Repository for interacting with the Firefly blockchain
 /// Provides methods for wallet operations, balance checking, and transaction management
@@ -72,7 +73,7 @@ impl FireflyRepository {
         &self,
         wallet_address_to: &str,
         amount: u128,
-        description: &str,
+        description: Option<String>,
     ) -> anyhow::Result<TransferResponse> {
         let set_transfer = set_transfer_rho(
             &self.get_wallet_address(),

@@ -11,7 +11,7 @@ pub async fn get_transfer_request(
     auth: AccessStandard,
 ) -> Result<Json<TransferRequest>, ApiError> {
     Ok(Json(TransferRequest {
-        amount: 0,
+        amount: 0.into(),
         description: Default::default(),
         user_handle: Default::default(),
     }))

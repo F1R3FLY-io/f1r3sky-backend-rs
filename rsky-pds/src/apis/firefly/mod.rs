@@ -6,4 +6,3 @@ pub mod models;
 pub mod providers;
 pub mod transactions;
 pub mod transfer;
-mod wallet_history_example;

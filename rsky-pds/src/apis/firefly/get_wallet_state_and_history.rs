@@ -1,9 +1,8 @@
 use firefly_api::providers::FireflyProvider;
-use rocket::serde::json::Json;
 use rocket::State;
+use rocket::serde::json::Json;
 
 use super::models::{Direction, Transfer, WalletStateAndHistory};
-use super::wallet_history_example::example_wallet_history;
 use crate::apis::ApiError;
 
 #[tracing::instrument(skip_all)]
@@ -47,18 +46,19 @@ pub async fn get_wallet_state_and_history(
             id: transaction.id.clone(),
             direction,
             date,
-            amount,
+            amount: amount.into(),
             to_address,
         };
         transfers.push(transfer);
     }
 
-    let base_state = example_wallet_history(); // TODO: replace with real data
     let state = WalletStateAndHistory {
-        balance,
         address: wallet_address,
+        balance: balance.into(),
         transfers,
-        ..base_state
+        requests: vec![],
+        exchanges: vec![],
+        boosts: vec![],
     };
 
     Ok(Json(state))
