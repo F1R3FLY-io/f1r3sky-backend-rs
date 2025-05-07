@@ -1,7 +1,9 @@
+use firefly_api::client::helpers::verify_rev_addr;
 use firefly_api::models::TransferResult;
 use firefly_api::providers::FireflyProvider;
 use rocket::State;
 use rocket::serde::json::Json;
+use serde_json::Value;
 
 use super::models::U128Stringified;
 use crate::apis::ApiError;
@@ -32,6 +34,12 @@ pub async fn transfer(
         description,
         ..
     } = body.into_inner();
+    if !verify_rev_addr(to_address.as_str()) {
+        return Err(ApiError::InvalidRequest(format!(
+            "Invalid address: {}",
+            to_address
+        )));
+    }
     let client = provider.firefly();
     let response_block = client
         .transfer_request(&to_address, amount, description)

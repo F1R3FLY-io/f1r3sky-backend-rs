@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use anyhow::{Context, anyhow};
+use base64::Engine;
 use blake2::digest::consts::U32;
 use blake2::{Blake2b, Digest};
 use chrono::{DateTime, Utc};
@@ -118,4 +119,33 @@ impl FromExpr for Vec<u8> {
             )),
         }
     }
+}
+
+pub fn verify_rev_addr(rev_addr: &str) -> bool {
+    // Decode base58 address
+    let rev_bytes = match bs58::decode(rev_addr).into_vec() {
+        Ok(bytes) => bytes,
+        Err(_) => return false,
+    };
+
+    // Convert to hex
+    let rev_hex = hex::encode(&rev_bytes);
+
+    // Split payload and checksum
+    let payload = &rev_hex[..rev_hex.len() - 8];
+    let checksum = &rev_hex[rev_hex.len() - 8..];
+
+    // Decode payload hex
+    let payload_bytes = match hex::decode(payload) {
+        Ok(bytes) => bytes,
+        Err(_) => return false,
+    };
+
+    // Calculate checksum
+    let mut hasher = Blake2b::<U32>::new();
+    hasher.update(&payload_bytes);
+    let hash = hasher.finalize();
+    let checksum_calc = &hex::encode(&hash)[..8];
+
+    checksum == checksum_calc
 }
