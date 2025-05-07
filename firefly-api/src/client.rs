@@ -59,8 +59,10 @@ impl Client {
                 return Err(anyhow!("do_deploy error: {err:?}"));
             }
         };
-
-        Ok(message)
+        let sig = message
+            .strip_prefix("Success!\nDeployId is: ")
+            .context("failed to extract response hash")?;
+        Ok(sig.to_string())
     }
 
     pub async fn propose(&mut self) -> anyhow::Result<String> {

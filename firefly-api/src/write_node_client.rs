@@ -209,6 +209,23 @@ impl BlocksClient {
         Ok((parents_hash_list, filtered_deploys))
     }
 
+    pub async fn get_block_by_hash(&self, hash: &str) -> anyhow::Result<Value> {
+        self.api_get("block", Some(hash), None)
+            .await
+            .context("failed to get block")
+    }
+
+    pub async fn get_deploy_results(&self, hash: &str, sid: &str) -> anyhow::Result<Value> {
+        let block = self.get_block_by_hash(hash).await?;
+        let deploys = block["deploys"].as_array().context("missing deploys")?;
+        let deploy = deploys
+            .iter()
+            .find(|deploy| deploy["sig"].as_str() == Some(sid))
+            .ok_or_else(|| anyhow!("Deploy not found"))?
+            .to_owned();
+        Ok(deploy)
+    }
+
     pub async fn get_transactions(
         &self,
     ) -> Result<Vec<(String, DateTime<Utc>, Vec<String>)>, anyhow::Error> {

@@ -1,8 +1,10 @@
-use anyhow::anyhow;
-
 use crate::contracts::{check_balance_rho, set_transfer_rho};
+use crate::models::TransferResponse;
 use crate::providers::FireflyProvider;
 use crate::transaction::Transaction;
+use anyhow::anyhow;
+use serde::{Deserialize, Serialize};
+use serde_json::Value;
 
 /// Repository for interacting with the Firefly blockchain
 /// Provides methods for wallet operations, balance checking, and transaction management
@@ -64,14 +66,14 @@ impl FireflyRepository {
     /// * `description` - Description of the transfer
     ///
     /// # Returns
-    /// * `Ok(String)` - The block hash of the transfer transaction
+    /// * `Ok(TransferResponse)` - Transfer result.
     /// * `Err` - If the transfer fails
     pub async fn transfer_request(
         &self,
         wallet_address_to: &str,
         amount: u128,
         description: &str,
-    ) -> anyhow::Result<String> {
+    ) -> anyhow::Result<TransferResponse> {
         let set_transfer = set_transfer_rho(
             &self.get_wallet_address(),
             wallet_address_to,
@@ -80,9 +82,10 @@ impl FireflyRepository {
         )?;
         let wallet_key = self.get_wallet_key();
         let mut client = self.provider.client(&wallet_key).await?;
+        let block_client = self.provider.write_client()?;
 
         let deploy_response = client.deploy(set_transfer).await;
-        let _deploy_response_msg = match deploy_response {
+        let sid = match deploy_response {
             Ok(msg) => msg,
             Err(err) => {
                 let error_msg = format!("Failed to deploy transfer code: {err}");
@@ -101,7 +104,9 @@ impl FireflyRepository {
             }
         };
 
-        Ok(block_hash)
+        let response_block = block_client.get_deploy_results(&block_hash, &sid).await?;
+
+        TransferResponse::new(response_block)
     }
 
     /// Retrieves all transactions for the wallet
