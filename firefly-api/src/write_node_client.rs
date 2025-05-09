@@ -58,30 +58,34 @@ fn extract_filtered_deploys(deploys: Vec<Value>) -> Vec<(String, DateTime<Utc>, 
     deploys
         .into_iter()
         .filter_map(|deploy| {
-            if deploy["errored"].as_bool() == Some(false) {
-                let term = deploy["term"].as_str()?;
-                let first_line = term.lines().find(|line| !line.trim().is_empty())?;
-                if first_line.starts_with("//FIREFLY_OPERATION") {
-                    let mut csv_reader = ReaderBuilder::new()
-                        .delimiter(b';')
-                        .has_headers(false)
-                        .from_reader(first_line.as_bytes());
-                    let csv_values: Vec<String> = csv_reader
-                        .records()
-                        .next()
-                        .and_then(|record| record.ok())
-                        .map(|record| record.iter().map(|s| s.to_string()).collect())
-                        .unwrap_or_default();
-
-                    // Usage
-                    let unix_timestamp_ms = deploy["timestamp"].as_i64()?;
-                    let datetime = convert_unix_ms_to_datetime(unix_timestamp_ms).ok()?;
-                    let sig = deploy["sig"].as_str()?.to_string();
-                    let cost = deploy["cost"].as_u64().unwrap_or(0);
-                    return Some((sig, datetime, csv_values, cost));
-                }
+            if deploy["errored"].as_bool() != Some(false) {
+                return None;
             }
-            None
+
+            let term = deploy["term"].as_str()?;
+            let first_line = term.lines().find(|line| !line.trim().is_empty())?;
+
+            if !first_line.starts_with("//FIREFLY_OPERATION") {
+                return None;
+            }
+
+            let mut csv_reader = ReaderBuilder::new()
+                .delimiter(b';')
+                .has_headers(false)
+                .from_reader(first_line.as_bytes());
+            let csv_values: Vec<String> = csv_reader
+                .records()
+                .next()
+                .and_then(|record| record.ok())
+                .map(|record| record.iter().map(|s| s.to_string()).collect())
+                .unwrap_or_default();
+
+            // Usage
+            let unix_timestamp_ms = deploy["timestamp"].as_i64()?;
+            let datetime = convert_unix_ms_to_datetime(unix_timestamp_ms).ok()?;
+            let sig = deploy["sig"].as_str()?.to_string();
+            let cost = deploy["cost"].as_u64().unwrap_or(0);
+            return Some((sig, datetime, csv_values, cost));
         })
         .collect()
 }
