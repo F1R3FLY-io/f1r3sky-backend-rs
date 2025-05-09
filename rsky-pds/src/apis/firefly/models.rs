@@ -1,9 +1,14 @@
+use std::str::FromStr;
+
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 #[derive(Debug, Clone, Copy)]
-pub struct U128Stringified(pub u128);
+pub struct Stringified<T>(pub T);
 
-impl Serialize for U128Stringified {
+impl<T> Serialize for Stringified<T>
+where
+    T: ToString,
+{
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
@@ -12,20 +17,22 @@ impl Serialize for U128Stringified {
     }
 }
 
-impl<'de> Deserialize<'de> for U128Stringified {
+impl<'de, T> Deserialize<'de> for Stringified<T>
+where
+    T: FromStr,
+    <T as FromStr>::Err: std::fmt::Display,
+{
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
     {
         let s = String::deserialize(deserializer)?;
-        s.parse::<u128>()
-            .map(Self)
-            .map_err(serde::de::Error::custom)
+        s.parse::<T>().map(Self).map_err(serde::de::Error::custom)
     }
 }
 
-impl From<u128> for U128Stringified {
-    fn from(value: u128) -> Self {
+impl<T> From<T> for Stringified<T> {
+    fn from(value: T) -> Self {
         Self(value)
     }
 }
@@ -42,7 +49,7 @@ pub enum RequestStatus {
 pub struct Request {
     pub id: String,
     pub date: u64,
-    pub amount: U128Stringified,
+    pub amount: Stringified<u128>,
     pub status: RequestStatus,
 }
 
@@ -62,7 +69,7 @@ pub struct Boost {
     pub username: String,
     pub direction: Direction,
     pub date: u64,
-    pub amount: U128Stringified,
+    pub amount: Stringified<u128>,
     pub post: String,
 }
 
@@ -71,7 +78,7 @@ pub struct Transfer {
     pub id: String,
     pub direction: Direction,
     pub date: u64,
-    pub amount: U128Stringified,
+    pub amount: Stringified<u128>,
     pub to_address: String,
     pub cost: String,
 }
@@ -79,7 +86,7 @@ pub struct Transfer {
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct WalletStateAndHistory {
     pub address: String,
-    pub balance: U128Stringified,
+    pub balance: Stringified<u128>,
     pub requests: Vec<Request>,
     pub exchanges: Vec<Exchange>,
     pub boosts: Vec<Boost>,
@@ -88,7 +95,7 @@ pub struct WalletStateAndHistory {
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct TransferRequest {
-    pub amount: U128Stringified,
+    pub amount: Stringified<u128>,
     pub description: String,
     pub user_handle: String,
 }

@@ -1,13 +1,13 @@
 use rocket::http::Status;
 use rocket::serde::json::Json;
 
-use super::models::U128Stringified;
+use super::models::Stringified;
 use crate::apis::ApiError;
 use crate::auth_verifier::AccessStandard;
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct CreateTransferRequest {
-    amount: U128Stringified,
+    amount: Stringified<u128>,
     description: String,
 }
 
