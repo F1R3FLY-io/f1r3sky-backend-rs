@@ -6,36 +6,6 @@ use csv::ReaderBuilder;
 use reqwest::Client as HttpClient;
 use serde_json::Value;
 
-/// Converts a Unix timestamp in milliseconds to a `DateTime<Utc>`.
-///
-/// # Parameters
-/// - `unix_timestamp_ms`: An `i64` representing the Unix timestamp in milliseconds.
-///
-/// # Returns
-/// - `anyhow::Result<DateTime<Utc>>`: A `Result` containing the corresponding `DateTime<Utc>`
-///   if the conversion is successful, or an `anyhow::Error` if the conversion fails.
-///
-/// # Errors
-/// - Returns an error if the provided timestamp cannot be converted into a valid `DateTime<Utc>`.
-///
-/// # Example
-/// ```
-/// use chrono::Utc;
-/// let unix_timestamp_ms = 1_638_995_200_000; // Example timestamp in milliseconds
-/// let datetime = convert_unix_ms_to_datetime(unix_timestamp_ms);
-/// match datetime {
-///     Ok(dt) => println!("DateTime: {}", dt),
-///     Err(e) => eprintln!("Error: {}", e),
-/// }
-/// ```
-fn convert_unix_ms_to_datetime(unix_timestamp_ms: i64) -> anyhow::Result<DateTime<Utc>> {
-    let seconds = unix_timestamp_ms / 1000;
-    let nanoseconds = ((unix_timestamp_ms % 1000) * 1_000_000) as i32;
-
-    DateTime::from_timestamp(seconds, nanoseconds as u32)
-        .ok_or_else(|| anyhow::anyhow!("Failed to convert timestamp: {}", unix_timestamp_ms))
-}
-
 /// Extracts and filters deploy information from a vector of JSON Values.
 /// Only processes non-errored deploys that start with "//FIREFLY_OPERATION".
 ///
@@ -82,7 +52,8 @@ fn extract_filtered_deploys(deploys: Vec<Value>) -> Vec<(String, DateTime<Utc>, 
 
             // Usage
             let unix_timestamp_ms = deploy["timestamp"].as_i64()?;
-            let datetime = convert_unix_ms_to_datetime(unix_timestamp_ms).ok()?;
+            let datetime =
+                DateTime::from_timestamp_millis(unix_timestamp_ms).expect("invalid unix timestamp");
             let sig = deploy["sig"].as_str()?.to_string();
             let cost = deploy["cost"].as_u64().unwrap_or(0);
             return Some((sig, datetime, csv_values, cost));
