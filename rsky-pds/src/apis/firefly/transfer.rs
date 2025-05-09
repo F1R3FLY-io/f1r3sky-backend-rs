@@ -1,9 +1,7 @@
 use firefly_api::client::helpers::verify_rev_addr;
-use firefly_api::models::TransferResult;
 use firefly_api::providers::FireflyProvider;
-use rocket::State;
 use rocket::serde::json::Json;
-use serde_json::Value;
+use rocket::State;
 
 use super::models::U128Stringified;
 use crate::apis::ApiError;

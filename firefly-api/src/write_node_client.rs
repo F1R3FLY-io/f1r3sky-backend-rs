@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use anyhow::{Context, anyhow};
+use anyhow::{anyhow, Context};
 use chrono::{DateTime, Utc};
 use csv::ReaderBuilder;
 use reqwest::Client as HttpClient;
@@ -51,9 +51,11 @@ fn extract_filtered_deploys(deploys: Vec<Value>) -> Vec<(String, DateTime<Utc>, 
                 .unwrap_or_default();
 
             // Usage
-            let unix_timestamp_ms = deploy["timestamp"].as_i64()?;
-            let datetime =
-                DateTime::from_timestamp_millis(unix_timestamp_ms).expect("invalid unix timestamp");
+            let unix_timestamp_ms = deploy["timestamp"]
+                .as_i64()
+                .expect("invalid timestamp format");
+            let datetime = DateTime::from_timestamp_millis(unix_timestamp_ms)
+                .expect("invalid unix timestamp value");
             let sig = deploy["sig"].as_str()?.to_string();
             let cost = deploy["cost"].as_u64().unwrap_or(0);
             return Some((sig, datetime, csv_values, cost));

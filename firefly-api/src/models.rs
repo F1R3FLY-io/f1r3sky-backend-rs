@@ -32,11 +32,6 @@ pub struct TransferResult {
 
 impl TransferResult {
     pub fn new(block_data: Value) -> anyhow::Result<Self> {
-        let sig = block_data
-            .get("sig")
-            .and_then(Value::as_str)
-            .expect("sig not found")
-            .to_string();
         let cost = block_data
             .get("cost")
             .and_then(Value::as_u64)

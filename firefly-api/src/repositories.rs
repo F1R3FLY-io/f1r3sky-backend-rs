@@ -1,11 +1,8 @@
-use anyhow::anyhow;
-use serde::{Deserialize, Serialize};
-use serde_json::Value;
-
 use crate::contracts::{check_balance_rho, set_transfer_rho};
 use crate::models::TransferResult;
 use crate::providers::FireflyProvider;
 use crate::transaction::Transaction;
+use anyhow::anyhow;
 
 /// Repository for interacting with the Firefly blockchain
 /// Provides methods for wallet operations, balance checking, and transaction management

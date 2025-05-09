@@ -5,7 +5,7 @@ use crate::{SharedIdResolver, APP_USER_AGENT};
 use anyhow::{bail, Result};
 use rocket::serde::json::Json;
 use rocket::State;
-use rsky_common::env::{env_list, env_str};
+use rsky_common::env::env_str;
 use rsky_lexicon::com::atproto::identity::ResolveHandleOutput;
 
 async fn try_resolve_from_app_view(handle: &String) -> Result<Option<String>> {
