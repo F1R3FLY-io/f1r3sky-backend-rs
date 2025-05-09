@@ -1,5 +1,5 @@
-use anyhow::{anyhow, Context};
-use helpers::{build_deploy_msg, FromExpr};
+use anyhow::{Context, anyhow};
+use helpers::{FromExpr, build_deploy_msg};
 use secp256k1::SecretKey;
 
 use crate::models::casper::v1::deploy_service_client::DeployServiceClient;
@@ -40,7 +40,7 @@ impl Client {
     }
 
     pub async fn deploy(&mut self, code: String) -> anyhow::Result<String> {
-        let msg = build_deploy_msg(&self.wallet_key, code, chrono::Utc::now());
+        let msg = build_deploy_msg(&self.wallet_key, code);
 
         let deploy_response = self
             .deploy_client

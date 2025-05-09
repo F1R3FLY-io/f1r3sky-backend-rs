@@ -4,19 +4,14 @@ use anyhow::{Context, anyhow};
 use base64::Engine;
 use blake2::digest::consts::U32;
 use blake2::{Blake2b, Digest};
-use chrono::{DateTime, Utc};
 use prost::Message as _;
 use secp256k1::{Message, Secp256k1, SecretKey};
 
 use crate::models::casper::DeployDataProto;
 use crate::models::rhoapi::expr::ExprInstance;
 
-pub fn build_deploy_msg(
-    key: &SecretKey,
-    code: String,
-    date_time: DateTime<Utc>,
-) -> DeployDataProto {
-    let timestamp = date_time.timestamp_millis();
+pub fn build_deploy_msg(key: &SecretKey, code: String) -> DeployDataProto {
+    let timestamp = chrono::Utc::now().timestamp_millis();
     let mut msg = DeployDataProto {
         term: code,
         timestamp,
