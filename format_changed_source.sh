@@ -9,7 +9,6 @@ if [ -n "$STAGED_RS_FILES" ]; then
   for file in $STAGED_RS_FILES; do
     echo "Formatting Rust $file..."
     rustup run nightly rustfmt "$file"
-    git add "$file"
   done
 fi
 
@@ -21,7 +20,6 @@ if [ -n "$STAGED_TOML_FILES" ]; then
   for file in $STAGED_TOML_FILES; do
     echo "Formatting TOML $file..."
     taplo fmt "$file"
-    git add "$file"
   done
 fi
 

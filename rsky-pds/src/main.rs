@@ -1,41 +1,38 @@
 #[macro_use]
 extern crate rocket;
+use std::env;
+
 use atrium_api::client::AtpServiceClient;
 use atrium_xrpc_client::reqwest::ReqwestClientBuilder;
 use diesel::prelude::*;
 use diesel::sql_types::Int4;
-use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
+use diesel_migrations::{EmbeddedMigrations, MigrationHarness, embed_migrations};
 use dotenvy::dotenv;
 use rocket::data::{Limits, ToByteUnit};
 use rocket::fairing::{Fairing, Info, Kind};
-use rocket::figment::{
-    util::map,
-    value::{Map, Value},
-};
-use rocket::http::Header;
-use rocket::http::Status;
+use rocket::figment::util::map;
+use rocket::figment::value::{Map, Value};
+use rocket::http::{Header, Status};
 use rocket::response::status;
 use rocket::serde::json::Json;
 use rocket::shield::{NoSniff, Shield};
 use rocket::{Request, Response};
 use rsky_common::env::env_list;
-use rsky_identity::types::{DidCache, IdentityResolverOpts};
 use rsky_identity::IdResolver;
+use rsky_identity::types::{DidCache, IdentityResolverOpts};
 use rsky_pds::account_manager::AccountManager;
 use rsky_pds::apis::firefly::providers::get_firefly_provider;
 use rsky_pds::apis::*;
 use rsky_pds::config::env_to_cfg;
 use rsky_pds::crawlers::Crawlers;
-use rsky_pds::db::establish_connection;
-use rsky_pds::db::DbConn;
+use rsky_pds::db::{DbConn, establish_connection};
 use rsky_pds::read_after_write::viewer::{LocalViewer, LocalViewerCreatorParams};
 use rsky_pds::sequencer::Sequencer;
 use rsky_pds::wallet::WalletService;
 use rsky_pds::well_known::well_known;
 use rsky_pds::{
-    SharedATPAgent, SharedIdResolver, SharedLocalViewer, SharedSequencer, APP_USER_AGENT,
+    APP_USER_AGENT, SharedATPAgent, SharedIdResolver, SharedLocalViewer, SharedSequencer,
 };
-use std::env;
 use tokio::sync::RwLock;
 
 pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("./migrations");
@@ -243,6 +240,7 @@ async fn rocket() -> _ {
                 firefly::get_transfer_request::get_transfer_request,
                 firefly::get_wallet_state_and_history::get_wallet_state_and_history,
                 firefly::transfer::transfer,
+                firefly::transactions::get_transactions,
             ]
         )
         .mount(
