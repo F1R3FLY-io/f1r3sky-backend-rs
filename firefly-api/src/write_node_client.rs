@@ -97,19 +97,14 @@ fn extract_filtered_deploys(deploys: Vec<Value>) -> Vec<(String, DateTime<Utc>, 
 /// Vector of tuples with timestamp as Datetime and CSV value vectors, sorted by timestamp with duplicates removed
 fn process_tuples(
     tuples: Vec<(String, DateTime<Utc>, Vec<String>, u64)>,
-) -> Vec<(String, DateTime<Utc>, Vec<String>, String)> {
+) -> Vec<(String, DateTime<Utc>, Vec<String>, u64)> {
     let mut seen_sigs = HashSet::new();
     let mut unique_tuples: Vec<_> = tuples
         .into_iter()
         .filter(|(sig, _, _, _)| seen_sigs.insert(sig.to_string()))
         .collect();
-
     unique_tuples.sort_by_key(|(_, datetime, _, _)| *datetime);
-
     unique_tuples
-        .into_iter()
-        .map(|(id, datetime, csv_values, cost)| (id, datetime, csv_values, cost.to_string()))
-        .collect()
 }
 
 #[derive(Debug, Clone)]
@@ -229,7 +224,7 @@ impl BlocksClient {
 
     pub async fn get_transactions(
         &self,
-    ) -> Result<Vec<(String, DateTime<Utc>, Vec<String>, String)>, anyhow::Error> {
+    ) -> Result<Vec<(String, DateTime<Utc>, Vec<String>, u64)>, anyhow::Error> {
         let mut current_hash = self.first_block_hash().await?;
         let mut result = vec![];
         let mut hash_list: Vec<String> = vec![];
