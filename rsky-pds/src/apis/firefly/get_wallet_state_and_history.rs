@@ -20,12 +20,12 @@ pub async fn get_wallet_state_and_history(
     let mut transfers: Vec<Transfer> = vec![];
     for transaction in transactions {
         if transaction.name != "SET_TRANSFER" {
-            break;
+            continue;
         }
         let from_address = &transaction.arguments[0];
         let to_address = &transaction.arguments[1];
         if from_address != &wallet_address && to_address != &wallet_address {
-            break;
+            continue;
         }
         let is_incoming = to_address == &wallet_address;
         let direction = if is_incoming {
