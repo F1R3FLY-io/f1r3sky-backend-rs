@@ -125,6 +125,10 @@ pub fn verify_rev_addr(rev_addr: &str) -> bool {
     // Convert to hex
     let rev_hex = hex::encode(&rev_bytes);
 
+    if rev_hex.len() < 9 {
+        return false;
+    }
+
     // Split payload and checksum
     let payload = &rev_hex[..rev_hex.len() - 8];
     let checksum = &rev_hex[rev_hex.len() - 8..];

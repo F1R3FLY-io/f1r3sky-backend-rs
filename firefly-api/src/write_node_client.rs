@@ -144,12 +144,12 @@ impl BlocksClient {
     async fn first_block_hash(&self) -> Result<String, anyhow::Error> {
         let response = self.api_get("blocks", None, None).await?;
 
-        Ok(response
+        response
             .as_array()
             .and_then(|blocks| blocks.get(0))
             .and_then(|block| block["blockHash"].as_str())
             .map(|s| s.to_string())
-            .ok_or_else(|| anyhow!("Failed to extract block hash value."))?)
+            .context("Failed to extract block hash value.")
     }
 
     async fn walk_deploys_values(

@@ -1,6 +1,6 @@
 use firefly_api::providers::FireflyProvider;
-use rocket::State;
 use rocket::serde::json::Json;
+use rocket::State;
 
 use super::models::{Direction, Transfer, WalletStateAndHistory};
 use crate::apis::ApiError;
@@ -54,7 +54,7 @@ pub async fn get_wallet_state_and_history(
     }
 
     let state = WalletStateAndHistory {
-        address: wallet_address,
+        address: wallet_address.to_string(),
         balance: balance.into(),
         transfers,
         requests: vec![],

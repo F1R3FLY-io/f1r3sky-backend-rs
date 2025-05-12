@@ -4,6 +4,7 @@
     clippy::enum_variant_names
 )]
 
+use anyhow::Context;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
@@ -35,18 +36,15 @@ impl TransferResult {
         let cost = block_data
             .get("cost")
             .and_then(Value::as_u64)
-            .expect("cost not found");
+            .context("cost not found")?;
         let errored = block_data
             .get("errored")
             .and_then(Value::as_bool)
-            .expect("errored not found");
+            .context("errored not found")?;
         let system_deploy_error = block_data
             .get("system_deploy_error")
-            .and_then(Value::as_str);
-        let system_deploy_error = match system_deploy_error {
-            Some(err_msg) => Some(err_msg.to_string()),
-            None => None,
-        };
+            .and_then(Value::as_str)
+            .map(ToString::to_string);
         Ok(Self {
             cost,
             errored,

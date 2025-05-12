@@ -36,11 +36,10 @@ impl ReadNodeClient {
         // Ensure the request was successful
         if response.status().is_success() {
             // Parse the JSON response
-            let json_data: Value = response
+            response
                 .json()
                 .await
-                .context("failed to parse response as JSON")?;
-            Ok(json_data)
+                .context("failed to parse response as JSON")
         } else {
             Err(anyhow!(
                 "HTTP request failed with status: {}",
@@ -57,12 +56,12 @@ impl ReadNodeClient {
     where
         T: serde::de::DeserializeOwned,
     {
-        let response_json: Value = self.get_value(rholang_code.to_string()).await?;
+        let response_json: Value = self.get_value(rholang_code).await?;
 
         let data_value = Self::extract_data_from_response(response_json)
-            .ok_or_else(|| anyhow!("Failed to extract data from response structure"))?;
+            .context("Failed to extract data from response structure")?;
 
-        let parsed_data: T = serde_json::from_value(data_value.clone())
+        let parsed_data: T = serde_json::from_value(data_value)
             .context("Failed to deserialize response data into target type")?;
 
         Ok(parsed_data)

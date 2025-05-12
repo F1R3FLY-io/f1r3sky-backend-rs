@@ -1,9 +1,8 @@
-use anyhow::anyhow;
-
 use crate::client::Client;
 use crate::read_node_client::ReadNodeClient;
 use crate::repositories::FireflyRepository;
 use crate::write_node_client::BlocksClient;
+use anyhow::Context;
 
 #[derive(Debug, Clone)]
 pub struct FireflyProvider {
@@ -41,26 +40,15 @@ impl FireflyProvider {
             &self.propose_service_url,
         )
         .await;
-        let client = match client {
-            Ok(client) => client,
-            Err(err) => {
-                let error_msg = format!("Failed to create Firefly client: {err}");
-                tracing::error!("{}", &error_msg);
-                return Err(anyhow!(error_msg));
-            }
-        };
-
-        Ok(client)
+        client.context("Failed to create Firefly client: {err}")
     }
 
-    pub fn read_client(&self) -> Result<ReadNodeClient, anyhow::Error> {
-        let read_client = ReadNodeClient::new(&self.read_node_url);
-        Ok(read_client)
+    pub fn read_client(&self) -> ReadNodeClient {
+        ReadNodeClient::new(&self.read_node_url)
     }
 
-    pub fn write_client(&self) -> Result<BlocksClient, anyhow::Error> {
-        let blocks_client = BlocksClient::new(&self.write_node_url);
-        Ok(blocks_client)
+    pub fn write_client(&self) -> BlocksClient {
+        BlocksClient::new(&self.write_node_url)
     }
 
     pub fn firefly(&self) -> FireflyRepository {
