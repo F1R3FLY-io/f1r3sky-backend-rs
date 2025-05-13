@@ -83,10 +83,10 @@ impl<'a> FireflyRepository<'a> {
         let block_client = self.provider.write_client();
 
         let deploy_response = client.deploy(set_transfer).await;
-        let sid = deploy_response.context("Failed to deploy transfer code: {err}")?;
+        let sid = deploy_response.context("Failed to deploy transfer code: ")?;
 
         let block_hash = client.propose().await;
-        let block_hash = block_hash.context("Failed to propose transfer code: {err}")?;
+        let block_hash = block_hash.context("Failed to propose transfer code: ")?;
 
         let response_block = block_client.get_deploy_results(&block_hash, &sid).await?;
 

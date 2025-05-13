@@ -40,7 +40,7 @@ impl FireflyProvider {
             &self.propose_service_url,
         )
         .await;
-        client.context("Failed to create Firefly client: {err}")
+        client.context("Failed to create Firefly client: ")
     }
 
     pub fn read_client(&self) -> ReadNodeClient {
