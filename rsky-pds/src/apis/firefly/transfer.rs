@@ -1,14 +1,21 @@
+use firefly_api::client::helpers::verify_rev_addr;
 use firefly_api::providers::FireflyProvider;
-use rocket::State;
 use rocket::serde::json::Json;
+use rocket::State;
 
+use super::models::Stringified;
 use crate::apis::ApiError;
 
-#[derive(Debug, Deserialize, Serialize, Clone)]
+#[derive(Debug, Clone, Deserialize)]
 pub struct TransferRequest {
-    amount: u128,
+    amount: Stringified<u128>,
     to_address: String,
-    description: String,
+    description: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct TransferResponse {
+    cost: String,
 }
 
 #[tracing::instrument(skip_all)]
@@ -18,17 +25,31 @@ pub async fn transfer(
     provider: &State<FireflyProvider>,
     // auth: AccessStandard  // remove comment to turn on auth
     // TODO: auth should be turned on when we'll solve storage parameters per user
-) -> Result<(), ApiError> {
+) -> Result<Json<TransferResponse>, ApiError> {
     let TransferRequest {
-        amount,
+        amount: Stringified(amount),
         to_address,
         description,
         ..
     } = body.into_inner();
+    if !verify_rev_addr(to_address.as_str()) {
+        return Err(ApiError::InvalidRequest(format!(
+            "Invalid address: {}",
+            to_address
+        )));
+    }
     let client = provider.firefly();
-    let _response_hash = client
-        .transfer_request(&to_address, amount, &description)
-        .await?;
-
-    Ok(())
+    let response_block = client
+        .transfer_request(&to_address, amount, description)
+        .await
+        .map_err(|e| ApiError::InvalidRequest(e.to_string()))?;
+    let system_deploy_error = response_block.system_deploy_error.map(|s| s.to_string());
+    if response_block.errored {
+        return Err(ApiError::InvalidRequest(
+            system_deploy_error.unwrap_or_else(|| "Unknown error".to_string()),
+        ));
+    }
+    Ok(Json(TransferResponse {
+        cost: response_block.cost.to_string(),
+    }))
 }

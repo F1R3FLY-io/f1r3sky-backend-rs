@@ -65,8 +65,8 @@ async fn main() -> anyhow::Result<()> {
 
     let mut client = firefly_api::Client::new(
         &args.wallet_key,
-        args.deploy_service_url,
-        args.propose_service_url,
+        &args.deploy_service_url,
+        &args.propose_service_url,
     )
     .await?;
 

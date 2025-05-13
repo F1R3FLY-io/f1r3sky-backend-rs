@@ -28,13 +28,13 @@ pub fn set_transfer_rho(
     wallet_address_from: &str,
     wallet_address_to: &str,
     amount: u128,
-    description: &str,
+    description: Option<String>,
 ) -> anyhow::Result<String> {
     SetTransferTemplate {
         wallet_address_from,
         wallet_address_to,
         amount,
-        description,
+        description: &description.unwrap_or_default(),
     }
     .render_once()
     .context("failed to render set_transfer_rho")

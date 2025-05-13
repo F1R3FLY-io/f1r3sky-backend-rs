@@ -1,4 +1,4 @@
-use anyhow::{Context, anyhow};
+use anyhow::{anyhow, Context};
 use reqwest::Client as HttpClient;
 use serde_json::Value;
 
@@ -8,8 +8,10 @@ pub struct ReadNodeClient {
 }
 
 impl ReadNodeClient {
-    pub fn new(read_node_url: String) -> Self {
-        Self { read_node_url }
+    pub fn new(read_node_url: &str) -> Self {
+        Self {
+            read_node_url: read_node_url.to_string(),
+        }
     }
 
     fn read_node_api(self) -> String {
@@ -46,7 +48,7 @@ impl ReadNodeClient {
         }
     }
 
-    fn extract_data_from_response(mut json: serde_json::Value) -> Option<serde_json::Value> {
+    fn extract_data_from_response(mut json: Value) -> Option<Value> {
         json.pointer_mut("/expr/0/ExprInt/data").map(|v| v.take())
     }
 
@@ -54,12 +56,14 @@ impl ReadNodeClient {
     where
         T: serde::de::DeserializeOwned,
     {
-        let response_json = self.get_value(rholang_code).await?;
+        let response_json: Value = self.get_value(rholang_code).await?;
 
         let data_value = Self::extract_data_from_response(response_json)
             .context("Failed to extract data from response structure")?;
 
-        serde_json::from_value(data_value)
-            .context("Failed to deserialize response data into target type")
+        let parsed_data: T = serde_json::from_value(data_value)
+            .context("Failed to deserialize response data into target type")?;
+
+        Ok(parsed_data)
     }
 }
